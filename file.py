@@ -1069,37 +1069,4 @@ class ProfileScreen extends StatelessWidget {
         "mobile/assets/fonts/.gitkeep": "",
     }
     
-    # Root files
-    root_files = {
-        "README.md": """# AfyaSiri - Breast Cancer Awareness App 🎗️
-
-## Overview
-AfyaSiri is a comprehensive breast cancer awareness application that provides education, symptom tracking, and support resources for women's breast health.
-
-## Architecture
-
-### Backend (Python/FastAPI)
-- **FastAPI** for high-performance API
-- **Machine Learning** integration for health insights
-- **Authentication** system with JWT tokens
-- **Database** models for users, symptoms, and resources
-
-### Web App (Streamlit)
-- **Multi-page** application with seamless navigation
-- **Symptom checker** with health tracking
-- **Educational resources** for breast health awareness
-- **Chat interface** for health queries
-
-### Mobile App (Flutter)
-- **Cross-platform** mobile application
-- **Native performance** with Material Design
-- **Offline capabilities** for basic features
-- **Push notifications** for health reminders
-
-## Quick Start
-
-### Backend Setup
-```bash
-cd backend
-pip install -r requirements.txt
-uvicorn app.main:app --reload
+    
