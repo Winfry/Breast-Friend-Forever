@@ -679,7 +679,8 @@ def education_screen():
     for i, tip in enumerate(tips):
         with cols[i % 2]:
             st.markdown(f"""
-            <div style='background-color:#ffe4ec; border-radius:15px; padding:20px; margin:10px;'>
+            """
+            <div style="background-color:#ffe4ec; border-radius:15px; padding:20px; margin:10px;">
                 <h4>{tip['icon']} {tip['text']}</h4>
                 <p>{tip['details']}</p>
             </div>
