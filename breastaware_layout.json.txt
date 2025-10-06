@@ -1,0 +1,47 @@
+breast-chatbot/
+│
+├── docs/
+│   ├── breast_cancer_who.pdf  # placeholder empty file
+│   └── kenya_cancer_society.txt  # placeholder empty file
+│
+├── chroma_store/  # empty folder, vector store auto-generated
+│
+├── backend/
+│   ├── app.py  # placeholder FastAPI backend
+│   ├── ingest.py  # placeholder for doc ingestion
+│   ├── requirements.txt  # placeholder dependencies
+│   └── utils/  # empty utils folder
+│
+├── frontend/
+│   ├── web/
+│   │   ├── ui.py  # placeholder Streamlit frontend
+│   │   ├── assets/  # empty folder for web assets
+│   │   └── styles/  # optional CSS folder
+│   │
+│   └── mobile/
+│       ├── lib/
+│       │   ├── screens/
+│       │   │   ├── splash_screen.dart
+│       │   │   ├── home_screen.dart
+│       │   │   ├── chat_screen.dart
+│       │   │   ├── learn_screen.dart
+│       │   │   ├── symptom_log_screen.dart
+│       │   │   ├── resources_screen.dart
+│       │   │   └── settings_screen.dart
+│       │   ├── widgets/
+│       │   │   ├── card.dart
+│       │   │   ├── chat_bubble.dart
+│       │   │   ├── button.dart
+│       │   │   └── nav_bar.dart
+│       │   └── main.dart
+│       └── assets/  # empty folder for Flutter assets
+│
+├── tests/
+│   ├── test_backend.py
+│   └── test_web_ui.py
+│
+├── Dockerfile  # placeholder
+├── docker-compose.yml  # placeholder
+├── README.md  # placeholder
+├── .env  # placeholder for API keys and secrets
+└── breastaware_layout.json  # JSON layout spec for Figma
