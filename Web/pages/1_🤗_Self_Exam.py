@@ -3,10 +3,6 @@ from streamlit_lottie import st_lottie
 import json
 import time
 
-# Function to load Lottie animation from JSON file
-def load_lottie_json(file_path):
-    with open(file_path, "r") as f:
-        return json.load(f)
 
 # Function to load Lottie animation from JSON file
 def load_lottie_json(file_path):
