@@ -68,4 +68,5 @@ with col5:
     if st.button("Share Hope", key="encouragement"):
         st.switch_page("pages/5_💕_Encouragement_Wall.py")
 
-# ... rest of the code
+st.markdown("---")
+st.markdown("© 2025 Breast Friend Forever. All rights reserved.")
