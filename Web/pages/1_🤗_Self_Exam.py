@@ -15,6 +15,16 @@ st.set_page_config(page_title="Self-Exam Guide", page_icon="🖐️")
 st.markdown("# 🖐️ Breast Self-Examination Guide")
 st.caption("Your step-by-step companion for breast health awareness")
 
+# Load the Lottie animations for each step
+lottie_animations = {
+    "mirror": load_lottie_json("assets/animations/mirror-check.json"),
+    "arms_up": load_lottie_json("assets/animations/arms-up.json"),
+    "lie_down": load_lottie_json("assets/animations/lie-down.json"),
+    "circular": load_lottie_json("assets/animations/circular-motion.json"),
+    "coverage": load_lottie_json("assets/animations/full-coverage.json"),
+    "shower": load_lottie_json("assets/animations/shower-check.json")
+}
+
 # 📋 Self-Exam Steps Data
 steps = [
     {
