@@ -30,7 +30,8 @@ steps = [
     {
         "title": "Step 1: Visual Inspection",
         "description": "Stand in front of a mirror with your shoulders straight and arms on your hips. Look for any changes in size, shape, or color of your breasts.",
-        "tip": "💡 Look for any dimpling, puckering, or changes in the nipple."
+        "tip": "💡 Look for any dimpling, puckering, or changes in the nipple.",
+        "animation": lottie_animations["mirror"]
     },
     {
         "title": "Step 2: Raise Your Arms", 
