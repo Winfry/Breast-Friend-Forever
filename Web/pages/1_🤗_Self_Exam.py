@@ -10,13 +10,26 @@ st.set_page_config(
     layout="wide"
 )
 
+# Get the directory where this script is located
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+LOTTIE_DIR = os.path.join(SCRIPT_DIR, "lottie_animations")
+
 # Function to load local Lottie files
-def load_lottie_file(filepath: str):
+def load_lottie_file(filename: str):
     try:
-        with open(filepath, "r") as f:
-            return json.load(f)
+        file_path = os.path.join(LOTTIE_DIR, filename)
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f:
+                return json.load(f)
+        else:
+            st.error(f"Animation file not found: {file_path}")
+            # List available files for debugging
+            if os.path.exists(LOTTIE_DIR):
+                available_files = os.listdir(LOTTIE_DIR)
+                st.info(f"Available animation files: {available_files}")
+            return None
     except Exception as e:
-        st.error(f"Error loading animation: {str(e)}")
+        st.error(f"Error loading animation {filename}: {str(e)}")
         return None
 
 # Custom CSS for styling
@@ -85,15 +98,13 @@ def create_step(step_number, title, tip_text, tip_color, animation_file, button_
     with col_anim:
         st.markdown('<div class="animation-container">', unsafe_allow_html=True)
         
-        # UPDATED PATH: Now looking in the lottie_animations folder in the same directory
-        lottie_anim = load_lottie_file(f"lottie_animations/{animation_file}")
+        lottie_anim = load_lottie_file(animation_file)
         
         if lottie_anim:
             st_lottie(lottie_anim, height=200, key=f"anim_{button_key_suffix}")
         else:
             # Show a placeholder with the animation name
             st.info(f"💖 {animation_file.replace('.json', '').replace('-', ' ').title()}")
-            # Optional: Add a fallback emoji or image
             st.markdown("🎬 *Visual demonstration*")
         
         st.markdown('</div>', unsafe_allow_html=True)
