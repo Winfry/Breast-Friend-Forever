@@ -23,16 +23,12 @@ def load_lottie_file(filename: str):
                 return json.load(f)
         else:
             st.error(f"Animation file not found: {file_path}")
-            # List available files for debugging
-            if os.path.exists(LOTTIE_DIR):
-                available_files = os.listdir(LOTTIE_DIR)
-                st.info(f"Available animation files: {available_files}")
             return None
     except Exception as e:
         st.error(f"Error loading animation {filename}: {str(e)}")
         return None
 
-# Custom CSS for styling
+# Custom CSS for styling with better animation container
 st.markdown("""
 <style>
     .tip-bubble {
@@ -55,10 +51,18 @@ st.markdown("""
         display: flex;
         justify-content: center;
         align-items: center;
-        padding: 1rem;
-        background: #fafafa;
-        border-radius: 10px;
-        min-height: 250px;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border-radius: 15px;
+        min-height: 300px;
+        border: 2px dashed #FF69B4;
+    }
+    .animation-wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        height: 100%;
     }
     .completed-step {
         border: 2px solid #4CAF50 !important;
@@ -67,6 +71,10 @@ st.markdown("""
     .practiced-step {
         border: 2px solid #FFB6C1 !important;
         background: #fff8f8 !important;
+    }
+    /* Ensure Lottie container is visible */
+    .lottie-container {
+        background: transparent !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -97,16 +105,45 @@ def create_step(step_number, title, tip_text, tip_color, animation_file, button_
     
     with col_anim:
         st.markdown('<div class="animation-container">', unsafe_allow_html=True)
+        st.markdown('<div class="animation-wrapper">', unsafe_allow_html=True)
         
         lottie_anim = load_lottie_file(animation_file)
         
         if lottie_anim:
-            st_lottie(lottie_anim, height=200, key=f"anim_{button_key_suffix}")
+            # Try different configurations for Lottie
+            try:
+                # Option 1: Larger size with key parameters
+                st_lottie(
+                    lottie_anim, 
+                    height=250,  # Increased height
+                    width=250,   # Explicit width
+                    key=f"anim_{button_key_suffix}",
+                    speed=1,     # Normal speed
+                    loop=True,   # Loop the animation
+                    quality="high"  # Better quality
+                )
+            except Exception as e:
+                st.error(f"Lottie rendering error: {e}")
+                # Fallback: Show animation details
+                st.info(f"📊 Animation: {animation_file}")
+                st.write(f"Size: {lottie_anim.get('w', 'N/A')}x{lottie_anim.get('h', 'N/A')}")
+                st.write(f"Frames: {lottie_anim.get('op', 'N/A')}")
         else:
-            # Show a placeholder with the animation name
-            st.info(f"💖 {animation_file.replace('.json', '').replace('-', ' ').title()}")
-            st.markdown("🎬 *Visual demonstration*")
+            # Show a more descriptive placeholder
+            st.warning(f"🔄 Loading animation: {animation_file}")
+            emoji_placeholder = {
+                "mirror-check.json": "🪞 Mirror Check",
+                "arms-up.json": "🙋 Arms Up", 
+                "lie-down.json": "🛌 Lie Down",
+                "circular-motion.json": "🔵 Circular Motion",
+                "full-coverage.json": "📱 Full Coverage",
+                "shower-check.json": "🚿 Shower Check"
+            }
+            placeholder_text = emoji_placeholder.get(animation_file, "🎬 Animation")
+            st.markdown(f"<div style='text-align: center; font-size: 48px;'>{placeholder_text.split(' ')[0]}</div>", unsafe_allow_html=True)
+            st.markdown(f"<div style='text-align: center;'><strong>{placeholder_text}</strong></div>", unsafe_allow_html=True)
         
+        st.markdown('</div>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     
     with col_content:
@@ -251,6 +288,26 @@ st.sidebar.markdown("### 📚 Additional Resources")
 st.sidebar.page_link("pages/3_📚_Resources.py", label="📚 Educational Resources", icon="📚")
 st.sidebar.page_link("pages/4_🏥_Find_Screening.py", label="🏥 Find Screening Centers", icon="🏥")
 st.sidebar.page_link("pages/5_💕_Encouragement_Wall.py", label="💕 Encouragement Wall", icon="💕")
+
+# Debug section to verify animations are loading
+with st.sidebar.expander("🔧 Animation Debug"):
+    st.write("Animation files in folder:")
+    if os.path.exists(LOTTIE_DIR):
+        animation_files = os.listdir(LOTTIE_DIR)
+        for file in animation_files:
+            if file.endswith('.json'):
+                st.write(f"✅ {file}")
+    else:
+        st.error("Lottie folder not found!")
+    
+    # Test loading one animation
+    if st.button("Test Load Animation"):
+        test_anim = load_lottie_file("arms-up.json")
+        if test_anim:
+            st.success("✅ Animation loaded successfully!")
+            st.json(test_anim)  # Show the animation data
+        else:
+            st.error("❌ Failed to load animation")
 
 # Footer
 st.markdown("---")
