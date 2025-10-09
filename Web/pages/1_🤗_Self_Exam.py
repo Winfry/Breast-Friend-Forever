@@ -10,27 +10,13 @@ st.set_page_config(
     layout="wide"
 )
 
-# Function to load local Lottie files with correct path
+# Function to load local Lottie files
 def load_lottie_file(filepath: str):
     try:
-        # Try multiple possible paths
-        possible_paths = [
-            filepath,  # Direct path
-            f"../{filepath}",  # One level up
-            f"../lottie_animations/{filepath.split('/')[-1]}",  # From pages folder
-            f"lottie_animations/{filepath.split('/')[-1]}"  # Relative to current dir
-        ]
-        
-        for path in possible_paths:
-            if os.path.exists(path):
-                with open(path, "r") as f:
-                    return json.load(f)
-        
-        st.error(f"Could not find animation file: {filepath}")
-        st.info(f"Looking in: {os.getcwd()}")
-        return None
+        with open(filepath, "r") as f:
+            return json.load(f)
     except Exception as e:
-        st.error(f"Error loading animation {filepath}: {str(e)}")
+        st.error(f"Error loading animation: {str(e)}")
         return None
 
 # Custom CSS for styling
@@ -75,17 +61,6 @@ st.markdown("""
 st.title("🤗 Breast Self-Exam Guide")
 st.markdown("Learn how to perform a breast self-exam in 6 simple steps with interactive guidance.")
 
-# Debug: Show current working directory and check if files exist
-with st.expander("Debug Info (Click to see file paths)"):
-    st.write("Current working directory:", os.getcwd())
-    st.write("Files in current directory:", os.listdir("."))
-    if os.path.exists("../lottie_animations"):
-        st.write("Files in lottie_animations folder:", os.listdir("../lottie_animations"))
-    elif os.path.exists("lottie_animations"):
-        st.write("Files in lottie_animations folder:", os.listdir("lottie_animations"))
-    else:
-        st.error("lottie_animations folder not found!")
-
 # Initialize session state for completion tracking
 if 'completed_steps' not in st.session_state:
     st.session_state.completed_steps = set()
@@ -110,27 +85,16 @@ def create_step(step_number, title, tip_text, tip_color, animation_file, button_
     with col_anim:
         st.markdown('<div class="animation-container">', unsafe_allow_html=True)
         
-        # Try different path configurations
-        animation_paths = [
-            f"../lottie_animations/{animation_file}",  # From pages folder
-            f"lottie_animations/{animation_file}",     # Relative to current dir
-            animation_file                             # Just the filename
-        ]
-        
-        lottie_anim = None
-        for path in animation_paths:
-            lottie_anim = load_lottie_file(path)
-            if lottie_anim:
-                break
+        # UPDATED PATH: Now looking in the lottie_animations folder in the same directory
+        lottie_anim = load_lottie_file(f"lottie_animations/{animation_file}")
         
         if lottie_anim:
             st_lottie(lottie_anim, height=200, key=f"anim_{button_key_suffix}")
         else:
             # Show a placeholder with the animation name
-            st.warning(f"Animation placeholder for: {animation_file}")
-            st.markdown(f"*{animation_file.replace('.json', '').replace('-', ' ').title()}*")
-            # You could add a fallback image here
-            st.image("https://via.placeholder.com/200x150/FF69B4/FFFFFF?text=Animation", width=200)
+            st.info(f"💖 {animation_file.replace('.json', '').replace('-', ' ').title()}")
+            # Optional: Add a fallback emoji or image
+            st.markdown("🎬 *Visual demonstration*")
         
         st.markdown('</div>', unsafe_allow_html=True)
     
