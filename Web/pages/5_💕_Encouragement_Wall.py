@@ -149,21 +149,18 @@ st.markdown("""
         justify-content: center;
     }
     
-    .reaction-btn {
-        background: transparent;
-        border: 2px solid #FF69B4;
-        color: #FF69B4;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        margin-right: 0.5rem;
+    .reaction-stats {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        margin-bottom: 1rem;
     }
     
-    .reaction-btn:hover {
-        background: #FF69B4;
-        color: white;
-        transform: scale(1.05);
+    .reaction-count {
+        display: flex;
+        align-items: center;
+        gap: 0.3rem;
+        font-weight: 600;
     }
     
     .user-avatar {
@@ -184,6 +181,12 @@ st.markdown("""
         position: absolute;
         font-size: 1.5rem;
         animation: sparkle 2s infinite;
+    }
+    
+    .reaction-buttons-container {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -244,6 +247,16 @@ if 'messages' not in st.session_state:
 
 if 'user_name' not in st.session_state:
     st.session_state.user_name = ""
+
+# Function to handle reactions
+def handle_reaction(message_id, reaction_type):
+    for message in st.session_state.messages:
+        if message["id"] == message_id:
+            if reaction_type not in message["user_reactions"]:
+                message["reactions"][reaction_type] += 1
+                message["user_reactions"].add(reaction_type)
+                return True
+    return False
 
 st.markdown("""
     <div style="text-align: center; margin-bottom: 3rem;">
@@ -402,6 +415,7 @@ for message in display_messages:
     else:
         time_display = "Just now"
     
+    # Display message card
     st.markdown(f"""
         <div class="{card_class}">
             <div style="display: flex; align-items: flex-start; margin-bottom: 1.5rem;">
@@ -418,21 +432,46 @@ for message in display_messages:
                 "{message['message']}"
             </p>
             
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="display: flex; gap: 1rem;">
-                    <span style="color: #EF4444;">💖 {message['reactions']['hearts']}</span>
-                    <span style="color: #F59E0B;">🌟 {message['reactions']['sparks']}</span>
-                    <span style="color: #8B5CF6;">🌈 {message['reactions']['rainbows']}</span>
+            <div class="reaction-stats">
+                <div class="reaction-count" style="color: #EF4444;">
+                    💖 {message['reactions']['hearts']}
                 </div>
-                
-                <div>
-                    <button class="reaction-btn" onclick="alert('Sending love!')">💖 Love</button>
-                    <button class="reaction-btn" onclick="alert('Sparking joy!')">🌟 Spark</button>
-                    <button class="reaction-btn" onclick="alert('Rainbow connection!')">🌈 Rainbow</button>
+                <div class="reaction-count" style="color: #F59E0B;">
+                    🌟 {message['reactions']['sparks']}
+                </div>
+                <div class="reaction-count" style="color: #8B5CF6;">
+                    🌈 {message['reactions']['rainbows']}
                 </div>
             </div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # Reaction buttons using Streamlit components
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button(f"💖 Send Love", key=f"heart_{message['id']}", use_container_width=True):
+            if handle_reaction(message["id"], "hearts"):
+                st.success("💖 Love sent! Your support means the world.")
+                st.rerun()
+            else:
+                st.info("💖 You've already sent love to this message!")
+    
+    with col2:
+        if st.button(f"🌟 Spark Joy", key=f"spark_{message['id']}", use_container_width=True):
+            if handle_reaction(message["id"], "sparks"):
+                st.success("🌟 Joy sparked! You're spreading positivity.")
+                st.rerun()
+            else:
+                st.info("🌟 You've already sparked joy for this message!")
+    
+    with col3:
+        if st.button(f"🌈 Rainbow Connection", key=f"rainbow_{message['id']}", use_container_width=True):
+            if handle_reaction(message["id"], "rainbows"):
+                st.success("🌈 Connection made! Your support creates beautiful ripples.")
+                st.rerun()
+            else:
+                st.info("🌈 You've already connected with this message!")
 
 # 🎨 INTERACTIVE ENCOURAGEMENT ACTIVITIES
 st.markdown("### 🎨 Boost Your Spirits")
@@ -526,3 +565,25 @@ with st.expander("🎵 Community Celebration Zone"):
         # Community celebration animation
         if community_animation:
             st_lottie(community_animation, speed=1, height=300, key="community_celebration")
+
+# 🔄 RESET OPTIONS
+with st.expander("🔄 Management Options"):
+    if st.button("🗑️ Clear All Messages", use_container_width=True):
+        st.session_state.messages = []
+        st.success("🧹 All messages cleared! The wall is fresh and ready for new inspiration.")
+        st.rerun()
+    
+    if st.button("📊 Export Community Data", use_container_width=True):
+        # Create a simple data export
+        community_data = {
+            "Total Messages": len(st.session_state.messages),
+            "Total Reactions": sum(sum(msg["reactions"].values()) for msg in st.session_state.messages),
+            "Most Active User": max(set(msg["user"] for msg in st.session_state.messages), 
+                                  key=lambda x: sum(1 for msg in st.session_state.messages if msg["user"] == x)) if st.session_state.messages else "N/A",
+            "Most Loved Message": max(st.session_state.messages, 
+                                    key=lambda x: sum(x["reactions"].values()))["message"][:50] + "..." if st.session_state.messages else "N/A"
+        }
+        
+        st.info("**Community Snapshot:**")
+        for key, value in community_data.items():
+            st.write(f"**{key}:** {value}")
