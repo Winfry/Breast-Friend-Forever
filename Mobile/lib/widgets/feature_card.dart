@@ -30,7 +30,7 @@ class FeatureCard extends StatelessWidget {
           border: Border(left: BorderSide(color: color, width: 5)),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withAlpha((255 * 0.1).round()),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
