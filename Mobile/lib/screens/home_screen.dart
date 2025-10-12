@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../widgets/feature_card.dart';
 import '../widgets/stats_card.dart';
-import '../../core/app_theme.dart';
+import '../core/app_theme.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});

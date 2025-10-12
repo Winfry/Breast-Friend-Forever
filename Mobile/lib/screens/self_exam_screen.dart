@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
-import '../services/progress_provider.dart';
-import '../widgets/step_card.dart';
+import 'package:breast_friend_flutter/services/progress_provider.dart';
+import 'package:breast_friend_flutter/widgets/step_card.dart';
 
 class SelfExamScreen extends StatefulWidget {
   const SelfExamScreen({super.key});
