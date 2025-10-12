@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import '../widgets/feature_card.dart';
-import '../widgets/stats_card.dart';
+import 'package:breast_friend_flutter/widgets/feature_card.dart';
+import 'package:breast_friend_flutter/widgets/stats_card.dart';
 import '../core/app_theme.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -73,7 +73,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.pink.withOpacity(0.3),
+                      color: Colors.pink.withAlpha((255 * 0.3).round()),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -93,7 +93,7 @@ class HomeScreen extends StatelessWidget {
                     Text(
                       'Your compassionate breast health companion',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Colors.white.withOpacity(0.9),
+                            color: Colors.white.withAlpha((255 * 0.9).round()),
                             fontSize: 16,
                           ),
                       textAlign: TextAlign.center,
@@ -111,7 +111,7 @@ class HomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withAlpha((255 * 0.1).round()),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -150,12 +150,12 @@ class HomeScreen extends StatelessWidget {
 
               // Features Grid
               ...features.map((feature) => FeatureCard(
-                    title: feature['title']!,
-                    description: feature['description']!,
+                    title: feature['title'] as String,
+                    description: feature['description'] as String,
                     color: feature['color'] as Color,
-                    animationPath: feature['animation']!,
+                    animationPath: feature['animation'] as String,
                     onTap: () {
-                      Navigator.pushNamed(context, feature['route']!);
+                      Navigator.pushNamed(context, feature['route'] as String);
                     },
                   )),
 

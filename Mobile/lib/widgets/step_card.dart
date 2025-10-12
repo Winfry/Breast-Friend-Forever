@@ -39,16 +39,16 @@ class StepCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Step $stepNumber: $title', style: Theme.of(context).textTheme.headline6),
+            Text('Step $stepNumber: $title', style: Theme.of(context).textTheme.headlineSmall),
             const SizedBox(height: 10),
-            Text(description, style: Theme.of(context).textTheme.bodyText2),
+            Text(description, style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 10),
             Lottie.asset(animationPath, height: 150),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: tipColor.withOpacity(0.2),
+                color: tipColor.withAlpha((255 * 0.2).round()),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(tip, style: TextStyle(color: tipColor, fontStyle: FontStyle.italic)),

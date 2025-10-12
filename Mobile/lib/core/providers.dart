@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:breast_friend_flutter/services/app_provider.dart';
 import 'package:breast_friend_flutter/services/user_provider.dart';

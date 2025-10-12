@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import 'package:breast_friend_flutter/services/progress_provider.dart';
 import 'package:breast_friend_flutter/widgets/step_card.dart';
@@ -97,14 +96,13 @@ class _SelfExamScreenState extends State<SelfExamScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withAlpha((255 * 0.1).round()),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 4),
+                                    ),
+                                  ],              ),
               child: Column(
                 children: [
                   Text(
