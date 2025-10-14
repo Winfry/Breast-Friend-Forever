@@ -6,6 +6,7 @@ router = APIRouter()
 
 @router.get("/", response_model=Dict[str, Any])
 async def get_all_resources():
+    """📚 Get all educational resources (articles, PDFs, links)"""
     try:
         return await data_service.load_resources()
     except Exception as e:
