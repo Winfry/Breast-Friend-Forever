@@ -1,0 +1,34 @@
+{
+  "articles": [
+    {
+      "id": 1,
+      "title": "Understanding Breast Self-Examination",
+      "description": "Learn the proper technique for checking your breasts at home",
+      "content": "# Understanding Breast Self-Examination\n\nRegular breast self-examination is a crucial part of maintaining breast health. Here's what you need to know...",
+      "category": "self-exam",
+      "reading_time": "5 min",
+      "last_updated": "2024-01-15",
+      "author": "Breast Health Team"
+    }
+  ],
+  "pdfs": [
+    {
+      "id": 1,
+      "title": "Breast Self-Examination Guide",
+      "description": "Printable step-by-step guide with illustrations",
+      "filename": "self_exam_guide.pdf",
+      "file_size": "2.1 MB",
+      "pages": 8,
+      "category": "self-exam"
+    }
+  ],
+  "external_links": [
+    {
+      "id": 1,
+      "title": "World Health Organization - Breast Cancer",
+      "description": "Global statistics and prevention strategies",
+      "url": "https://www.who.int/cancer/breast-cancer",
+      "category": "global-health"
+    }
+  ]
+}
