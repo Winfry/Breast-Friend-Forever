@@ -1,21 +1,20 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
-from datetime import datetime
+from typing import Optional, List
 
-# 💬 Chat Models
+# 💬 CHAT MODELS
 class ChatMessage(BaseModel):
-    """Schema for sending chat messages"""
-    message: str = Field(..., min_length=1, max_length=1000, description="User message")
-    conversation_id: str = Field(default="anonymous", description="Anonymous session ID")
+    """📨 What users send to the chatbot"""
+    message: str = Field(..., min_length=1, max_length=1000, description="User's question")
+    conversation_id: str = Field(default="anonymous", description="Session ID")
 
 class ChatResponse(BaseModel):
-    """Schema for chatbot responses"""
-    response: str = Field(..., description="AI response message")
-    conversation_id: str = Field(..., description="Session identifier")
+    """📤 What the chatbot sends back"""
+    response: str = Field(..., description="AI's answer")
+    conversation_id: str = Field(..., description="Session ID")
 
-# 🏥 Hospital Models
+# 🏥 HOSPITAL MODELS  
 class HospitalBase(BaseModel):
-    """Base schema for hospital data"""
+    """🏥 Hospital information structure"""
     name: str
     address: str
     city: str
@@ -24,51 +23,17 @@ class HospitalBase(BaseModel):
     services: Optional[str] = None
 
 class HospitalResponse(HospitalBase):
-    """Schema for hospital API responses"""
+    """📊 Hospital data for API responses"""
     id: int
-    
-    class Config:
-        from_attributes = True
 
-# 📚 Resource Models
-class ArticleBase(BaseModel):
-    """Schema for educational articles"""
-    title: str
-    description: str
-    content: str
-    category: str
-    reading_time: str
-    author: Optional[str] = "Breast Health Team"
-
-class ArticleResponse(ArticleBase):
-    """Schema for article API responses"""
-    id: int
-    last_updated: str
-    
-    class Config:
-        from_attributes = True
-
-class PDFResource(BaseModel):
-    """Schema for PDF resources"""
-    id: int
-    title: str
-    description: str
-    filename: str
-    file_size: str
-    pages: int
-    category: str
-
-# 💕 Encouragement Models
+# 💖 ENCOURAGEMENT MODELS
 class EncouragementMessage(BaseModel):
-    """Schema for encouragement wall messages"""
-    message: str = Field(..., min_length=5, max_length=500, description="Message content")
-    type: str = Field(default="💖 General Support", description="Message category")
-    author: str = Field(default="Anonymous Friend", description="Always anonymous")
+    """💌 Support message from users"""
+    message: str = Field(..., min_length=5, max_length=500)
+    type: str = Field(default="💖 General Support")
+    author: str = Field(default="Anonymous Friend")
 
 class EncouragementResponse(EncouragementMessage):
-    """Schema for encouragement API responses"""
+    """📨 Support message with ID and timestamp"""
     id: int
     timestamp: str
-    
-    class Config:
-        from_attributes = True

@@ -3,17 +3,16 @@ import json
 import aiofiles
 import os
 from typing import List, Dict, Any
-from app.core.config import settings
 
 class DataService:
-    """Service for handling data file operations"""
+    """📂 Service for reading/writing data files"""
     
     async def load_hospitals(self, city: str = None, state: str = None) -> List[Dict]:
-        """Load hospitals from CSV with optional filtering"""
+        """🏥 Load hospitals from CSV, optionally filter by city/state"""
         try:
-            df = pd.read_csv(settings.HOSPITALS_CSV)
+            df = pd.read_csv("app/data/hospitals.csv")
             
-            # Apply filters if provided
+            # 🔍 Filter if city/state provided
             if city:
                 df = df[df['city'].str.contains(city, case=False, na=False)]
             if state:
@@ -21,45 +20,38 @@ class DataService:
             
             return df.to_dict('records')
         except Exception as e:
-            print(f"Error loading hospitals: {e}")
-            return []
-    
+            print(f"❌ Error loading hospitals: {e}")
+            return []  # Return empty list instead of crashing
+
     async def load_resources(self) -> Dict[str, Any]:
-        """Load all resources from JSON file"""
+        """📚 Load educational resources from JSON"""
         try:
-            async with aiofiles.open(settings.RESOURCES_JSON, 'r', encoding='utf-8') as f:
+            async with aiofiles.open("app/data/resources.json", 'r', encoding='utf-8') as f:
                 content = await f.read()
                 return json.loads(content)
         except Exception as e:
-            print(f"Error loading resources: {e}")
+            print(f"❌ Error loading resources: {e}")
             return {"articles": [], "pdfs": [], "external_links": []}
-    
+
     async def load_encouragement(self) -> List[Dict]:
-        """Load encouragement messages from JSON"""
+        """💖 Load encouragement messages from JSON"""
         try:
-            async with aiofiles.open(settings.ENCOURAGEMENT_JSON, 'r', encoding='utf-8') as f:
+            async with aiofiles.open("app/data/encouragement.json", 'r', encoding='utf-8') as f:
                 content = await f.read()
                 return json.loads(content)
         except Exception as e:
-            print(f"Error loading encouragement: {e}")
+            print(f"❌ Error loading encouragement: {e}")
             return []
-    
+
     async def save_encouragement(self, messages: List[Dict]) -> bool:
-        """Save encouragement messages to JSON"""
+        """💾 Save encouragement messages to JSON"""
         try:
-            async with aiofiles.open(settings.ENCOURAGEMENT_JSON, 'w', encoding='utf-8') as f:
+            async with aiofiles.open("app/data/encouragement.json", 'w', encoding='utf-8') as f:
                 await f.write(json.dumps(messages, indent=2, ensure_ascii=False))
             return True
         except Exception as e:
-            print(f"Error saving encouragement: {e}")
+            print(f"❌ Error saving encouragement: {e}")
             return False
-    
-    async def get_pdf_path(self, filename: str) -> str:
-        """Get full path to PDF file"""
-        pdf_path = os.path.join(settings.PDF_STORAGE_PATH, filename)
-        if os.path.exists(pdf_path):
-            return pdf_path
-        raise FileNotFoundError(f"PDF not found: {filename}")
 
-# Create global instance
+# 🎯 Create a global instance
 data_service = DataService()
