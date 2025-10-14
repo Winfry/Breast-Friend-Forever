@@ -1,3 +1,4 @@
+# Core Backend
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
 pydantic==2.5.0
@@ -10,9 +11,9 @@ passlib[bcrypt]==1.7.4
 aiofiles==23.2.1
 python-dotenv==1.0.0
 pytest==7.4.0
-httpx==0.25.0
 
-# Web search (compatible packages)
+# 🆕 COMPATIBLE VERSIONS - No conflicts!
+httpx>=0.25.1,<1.0.0  # Updated to satisfy duckduckgo-search
 beautifulsoup4==4.12.2
 requests==2.31.0
 duckduckgo-search==3.9.6
