@@ -238,6 +238,16 @@ def get_prevention():
 
 **Remember:** While we can reduce risk, there's no guaranteed prevention. Early detection is key!"""
 
+# Cache PDF search results for common queries
+@lru_cache(maxsize=100)
+def cached_pdf_search(query: str):
+    return pdf_searcher.search(query)
+
+# Update your search method to use caching
+def search_with_cache(query, top_k=3):
+    """Cached version of PDF search"""
+    return cached_pdf_search(query.lower())
+
 # Health check for chatbot
 @router.get("/health")
 async def chat_health():
