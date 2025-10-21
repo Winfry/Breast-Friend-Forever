@@ -4,6 +4,7 @@ import requests
 class ApiClient:
     def __init__(self, backend_url="http://127.0.0.1:8000"):
         self.backend_url = backend_url
+        self.timeout = 10  # seconds
 
     def health_check(self):
         try:
