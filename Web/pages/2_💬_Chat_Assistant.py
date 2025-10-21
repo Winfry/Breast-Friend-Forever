@@ -247,10 +247,10 @@ except:
 # Initialize chat session
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
-if "is_typing" not in st.session_state:
-    st.session_state.is_typing = False
 if "conversation_id" not in st.session_state:
     st.session_state.conversation_id = f"chat_{int(time.time())}"
+if "message_submitted" not in st.session_state:
+    st.session_state.message_submitted = None
 
 # Welcome message
 if not st.session_state.chat_messages:
@@ -269,16 +269,6 @@ def add_message(role, content):
         "timestamp": datetime.now().strftime("%H:%M")
     }
     st.session_state.chat_messages.append(message)
-
-def simulate_ai_thinking():
-    """Show typing indicator and simulate thinking"""
-    st.session_state.is_typing = True
-    st.rerun()
-    
-    # Simulate AI processing time
-    time.sleep(2)
-    
-    st.session_state.is_typing = False
 
 def get_ai_response(user_message):
     """Get response from backend or use fallback"""
@@ -306,23 +296,20 @@ def get_ai_response(user_message):
     ]
     return random.choice(fallback_responses)
 
-def send_message():
-    """Handle sending messages"""
-    user_input = st.session_state.get("user_input", "").strip()
-    if user_input:
-        # Add user message
-        add_message("user", user_input)
+def send_message_callback():
+    if st.session_state.user_input:
+        st.session_state.message_submitted = st.session_state.user_input
         st.session_state.user_input = ""
-        
-        # Show typing indicator
-        simulate_ai_thinking()
-        
-        # Get AI response
+
+if st.session_state.get("message_submitted"):
+    user_input = st.session_state.message_submitted
+    st.session_state.message_submitted = None
+    add_message("user", user_input)
+    with st.spinner("Thinking..."):
+        time.sleep(2) # From original simulate_ai_thinking
         ai_response = get_ai_response(user_input)
-        
-        # Add AI response
-        add_message("assistant", ai_response)
-        st.rerun()
+    add_message("assistant", ai_response)
+    st.rerun()
 
 # 🎨 CHAT INTERFACE
 st.markdown("""
@@ -352,19 +339,6 @@ for i, message in enumerate(st.session_state.chat_messages):
             <div class="{message_class}">
                 {message["content"]}
                 <div class="message-time">{message["timestamp"]}</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-# Typing indicator
-if st.session_state.is_typing:
-    st.markdown("""
-        <div class="message-wrapper">
-            <div class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <span style="color: #FF69B4; margin-left: 1rem;">Thinking...</span>
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -416,8 +390,7 @@ with col1:
 
 with col2:
     st.markdown("<br>", unsafe_allow_html=True)
-    if st.button("➤", help="Send message", use_container_width=True):
-        send_message()
+    st.button("➤", help="Send message", use_container_width=True, on_click=send_message_callback)
 
 st.markdown('</div>', unsafe_allow_html=True)
 
