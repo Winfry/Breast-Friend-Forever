@@ -300,6 +300,7 @@ def send_message_callback():
     if st.session_state.user_input:
         st.session_state.message_submitted = st.session_state.user_input
         st.session_state.user_input = ""
+        st.rerun()
 
 if st.session_state.get("message_submitted"):
     user_input = st.session_state.message_submitted

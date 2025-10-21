@@ -4,6 +4,9 @@ from pydantic import BaseModel
 import os
 import PyPDF2
 from typing import List, Optional
+from functools import lru_cache
+import hashlib
+
 
 router = APIRouter()
 
