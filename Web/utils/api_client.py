@@ -2,7 +2,7 @@
 import requests
 
 class ApiClient:
-    def __init__(self, backend_url="http://127.0.0.1:8000"):
+    def __init__(self, backend_url="http://127.0.0.1:8001"):
         self.backend_url = backend_url
 
     def health_check(self):
