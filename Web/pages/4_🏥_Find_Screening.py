@@ -153,7 +153,7 @@ with col3:
 @st.cache_data
 def load_hospitals_data():
     """Load hospitals from CSV file or use default data"""
-    csv_path = "data/kenya_hospitals.csv"  # Adjust path as needed
+    csv_path = "data/hospitals.csv"  
     
     # Try to load from CSV first
     if os.path.exists(csv_path):
