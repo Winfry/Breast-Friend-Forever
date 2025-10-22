@@ -248,7 +248,7 @@ def load_hospital_data():
         
         df = None
         if os.path.exists(csv_path):
-            df = pd.read_csv(csv_path)
+            df = pd.read_csv(csv_path, encoding='latin1')
             st.success(f"✅ Loaded {len(df)} hospitals from: {csv_path}")
         else:
             st.warning(f"⚠️ CSV file not found at '{csv_path}'. Using sample data.")
