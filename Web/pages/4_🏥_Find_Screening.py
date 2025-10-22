@@ -244,7 +244,7 @@ def load_hospital_data():
         # Construct a robust path to the CSV file relative to the project root.
         # The script is in Web/pages, so we go up two directories to get to the project root.
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        csv_path = os.path.join(project_root, 'Backend', 'data', 'hospitals.csv')
+        csv_path = os.path.join(project_root, 'Backend', 'app', 'data', 'hospitals.csv')
         
         df = None
         if os.path.exists(csv_path):
