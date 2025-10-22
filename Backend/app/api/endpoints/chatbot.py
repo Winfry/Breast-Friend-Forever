@@ -52,17 +52,35 @@ class PDFSearcher:
                     print(f"❌ Failed to read PDF: {filename}")
         return content
     
-    def extract_pdf_text(self, filepath):
-        """Extract text from a PDF file"""
-        text = ""
+    def extract_pdf_text(self, pdf_path):
+        """Extract text from PDF file with encryption handling"""
         try:
-            with open(filepath, "rb") as f:
-                reader = PyPDF2.PdfReader(f)
+            with open(pdf_path, 'rb') as file:
+                reader = PyPDF2.PdfReader(file)
+                
+                # Handle encrypted PDFs gracefully
+                if reader.is_encrypted:
+                    try:
+                        reader.decrypt("")  # try to decrypt with empty password
+                        print(f"🔓 Decrypted PDF: {os.path.basename(pdf_path)}")
+                    except Exception as e:
+                        print(f"⚠️ Skipping encrypted PDF (needs password): {pdf_path} — {e}")
+                        return ""
+
+                text = ""
                 for page in reader.pages:
-                    text += page.extract_text() + "\n"
+                    try:
+                        page_text = page.extract_text() or ""
+                        text += page_text + "\n"
+                    except Exception as e:
+                        print(f"⚠️ Could not read a page in {pdf_path}: {e}")
+                        continue
+                
+                return text.strip()
         except Exception as e:
-            print(f"❌ Error reading PDF {filepath}: {e}")
-        return text
+            print(f"Error reading PDF {pdf_path}: {e}")
+            return ""
+
     def chunk_text(self, text, chunk_size=300):
         """Split text into manageable chunks"""
         sentences = text.split('. ')
