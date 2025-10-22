@@ -241,42 +241,17 @@ st.markdown("""
 @st.cache_data
 def load_hospital_data():
     try:
-        # Get current directory and try multiple possible paths
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        
-        possible_paths = [
-            os.path.join(current_dir, "Backend", "data", "hospitals.csv"),
-            os.path.join(current_dir, "backend", "data", "hospitals.csv"),
-            os.path.join(current_dir, "data", "hospitals.csv"),
-            os.path.join(current_dir, "hospitals.csv"),
-            os.path.join(os.getcwd(), "Backend", "data", "hospitals.csv"),
-            os.path.join(os.getcwd(), "backend", "data", "hospitals.csv"),
-            os.path.join(os.getcwd(), "data", "hospitals.csv"),
-            os.path.join(os.getcwd(), "hospitals.csv"),
-            "Backend/data/hospitals.csv",
-            "backend/data/hospitals.csv",
-            "data/hospitals.csv",
-            "hospitals.csv"
-        ]
+        # Construct a robust path to the CSV file relative to the project root.
+        # The script is in Web/pages, so we go up two directories to get to the project root.
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+        csv_path = os.path.join(project_root, 'Backend', 'data', 'hospitals.csv')
         
         df = None
-        used_path = ""
-        
-        for path in possible_paths:
-            if os.path.exists(path):
-                df = pd.read_csv(path)
-                used_path = path
-                st.success(f"✅ Loaded {len(df)} hospitals from: {path}")
-                break
-        
-        if df is None:
-            st.warning("⚠️ CSV file not found in any expected location. Using sample data.")
-            # Show available files for debugging
-            st.info("🔍 Looking for CSV files in current directory and subdirectories...")
-            for root, dirs, files in os.walk('.'):
-                for file in files:
-                    if file.endswith('.csv'):
-                        st.write(f"Found CSV: {os.path.join(root, file)}")
+        if os.path.exists(csv_path):
+            df = pd.read_csv(csv_path)
+            st.success(f"✅ Loaded {len(df)} hospitals from: {csv_path}")
+        else:
+            st.warning(f"⚠️ CSV file not found at '{csv_path}'. Using sample data.")
             return None, None
         
         # Get unique counties for the filter
