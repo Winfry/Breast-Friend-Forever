@@ -52,19 +52,17 @@ class PDFSearcher:
                     print(f"❌ Failed to read PDF: {filename}")
         return content
     
-    def extract_pdf_text(self, pdf_path):
-        """Extract text from PDF file"""
+    def extract_pdf_text(self, filepath):
+        """Extract text from a PDF file"""
+        text = ""
         try:
-            with open(pdf_path, 'rb') as file:
-                reader = PyPDF2.PdfReader(file)
-                text = ""
+            with open(filepath, "rb") as f:
+                reader = PyPDF2.PdfReader(f)
                 for page in reader.pages:
                     text += page.extract_text() + "\n"
-                return text
         except Exception as e:
-            print(f"Error reading PDF {pdf_path}: {e}")
-            return ""
-    
+            print(f"❌ Error reading PDF {filepath}: {e}")
+        return text
     def chunk_text(self, text, chunk_size=300):
         """Split text into manageable chunks"""
         sentences = text.split('. ')
