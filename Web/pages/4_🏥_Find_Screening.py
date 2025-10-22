@@ -243,11 +243,8 @@ def load_hospital_data():
     try:
         # Try different possible paths for the CSV file
         possible_paths = [
-            "Backend/data/hospitals.csv",
-            "data/hospitals.csv",
-            "hospitals.csv",
-            "../Backend/data/hospitals.csv",
-            "../data/hospitals.csv"
+            "Backend/app/data/hospitals.csv"
+            
         ]
         
         df = None
