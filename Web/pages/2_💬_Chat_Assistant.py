@@ -1,11 +1,21 @@
-# Web/pages/2_💬_Chat_Assistant.py
 import streamlit as st
 import time
 import requests
 import json
 import random
 from datetime import datetime
-from utils.api_client import api_client
+import sys
+import os
+
+# Add the backend to the path
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
+
+try:
+    from rag_system import get_rag_system
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
+    st.warning("⚠️ RAG system not available - using medical responses only")
 
 def load_lottieurl(url: str):
     try:
@@ -18,7 +28,7 @@ def load_lottieurl(url: str):
 
 st.set_page_config(page_title="Chat Assistant", page_icon="💬", layout="wide")
 
-# 🎨 SIMPLIFIED CSS - NO BROKEN HTML
+# 🎨 ENHANCED CSS FOR HYBRID SYSTEM
 st.markdown("""
     <style>
     .chat-container {
@@ -71,6 +81,16 @@ st.markdown("""
         display: inline-block;
     }
 
+    .system-badge {
+        background: linear-gradient(135deg, #10B981, #059669);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+        display: inline-block;
+    }
+
     .speed-indicator {
         display: inline-block;
         margin-left: 1rem;
@@ -85,39 +105,52 @@ try:
 except:
     welcome_animation = None
 
-# 🚀 SESSION STATE - SIMPLIFIED
+# 🚀 INITIALIZE RAG SYSTEM
+if RAG_AVAILABLE:
+    try:
+        rag_system = get_rag_system()
+        st.success("✅ RAG System Loaded Successfully!")
+    except Exception as e:
+        st.error(f"❌ RAG System Error: {e}")
+        RAG_AVAILABLE = False
+
+# 🚀 SESSION STATE - ENHANCED FOR HYBRID
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
 if "response_cache" not in st.session_state:
     st.session_state.response_cache = {}
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
+if "use_rag" not in st.session_state:
+    st.session_state.use_rag = RAG_AVAILABLE
 
 # Welcome message
 if not st.session_state.chat_messages:
+    welcome_msg = "Hello beautiful soul! 🌸 I'm your Breast Friend Forever companion. "
+    if RAG_AVAILABLE:
+        welcome_msg += "I'm using our enhanced RAG system to provide you with the most accurate information from trusted medical sources. "
+    else:
+        welcome_msg += "I'm here to provide caring, accurate information about breast health. "
+    welcome_msg += "What's on your mind today? 💖"
+    
     st.session_state.chat_messages.append({
         "role": "assistant", 
-        "content": "Hello beautiful soul! 🌸 I'm your Breast Friend Forever companion. I'm here to provide caring, accurate information about breast health in a safe, supportive space. What's on your mind today? 💖",
+        "content": welcome_msg,
         "timestamp": datetime.now().strftime("%H:%M"),
-        "source": "Welcome"
+        "source": "Welcome",
+        "system": "Medical Assistant"
     })
 
-def add_message(role, content, source="User"):
+def add_message(role, content, source="User", system="Medical"):
     """Add message to chat with timestamp and source"""
     message = {
         "role": role,
         "content": content,
         "timestamp": datetime.now().strftime("%H:%M"),
-        "source": source
+        "source": source,
+        "system": system
     }
     st.session_state.chat_messages.append(message)
-
-def get_ai_response(user_message):
-    """🚀 FORCE ACCURATE MEDICAL RESPONSES - NO GENERICS!"""
-    print(f"🎯 User asked: {user_message}")
-    
-    # 🎯 USE ACCURATE MEDICAL RESPONSES - NO BACKEND CALLS FOR NOW
-    return get_accurate_medical_response(user_message)
 
 def get_accurate_medical_response(user_message):
     """🚀 ACCURATE MEDICAL RESPONSES FROM TRUSTED SOURCES"""
@@ -150,7 +183,8 @@ def get_accurate_medical_response(user_message):
 **💡 Important:** This complements but doesn't replace clinical exams!""",
             "source": "Medical Guide PDF",
             "response_time": 0.1,
-            "speed": "💖 ACCURATE"
+            "speed": "💖 ACCURATE",
+            "system": "Medical Knowledge"
         }
     
     # 🎯 RISK REDUCTION QUESTIONS
@@ -178,7 +212,8 @@ def get_accurate_medical_response(user_message):
 - Regular screening improves early detection rates by 85%""",
             "source": "Prevention Guidelines PDF",
             "response_time": 0.1,
-            "speed": "💖 ACCURATE"
+            "speed": "💖 ACCURATE",
+            "system": "Medical Knowledge"
         }
     
     # 🎯 RISK FACTOR QUESTIONS
@@ -211,7 +246,8 @@ def get_accurate_medical_response(user_message):
 • Genetic differences in tumor biology""",
             "source": "Risk Factors PDF", 
             "response_time": 0.1,
-            "speed": "💖 ACCURATE"
+            "speed": "💖 ACCURATE",
+            "system": "Medical Knowledge"
         }
     
     # 🎯 EARLY SIGNS QUESTIONS
@@ -242,7 +278,8 @@ def get_accurate_medical_response(user_message):
 - When in doubt, get it checked out!""",
             "source": "Early Detection PDF",
             "response_time": 0.1, 
-            "speed": "💖 ACCURATE"
+            "speed": "💖 ACCURATE",
+            "system": "Medical Knowledge"
         }
     
     # 🎯 SCREENING QUESTIONS
@@ -278,27 +315,80 @@ def get_accurate_medical_response(user_message):
 • 5-year survival rate: 30% for distant metastasis""",
             "source": "Screening Guidelines PDF",
             "response_time": 0.1,
-            "speed": "💖 ACCURATE"
+            "speed": "💖 ACCURATE",
+            "system": "Medical Knowledge"
         }
     
     else:
-        # 🎯 GUIDANCE FOR OTHER QUESTIONS
-        return {
-            "response": "I specialize in providing specific, evidence-based information about breast health. Here are topics I can help with:\n\n• **Self-examination techniques** - Step-by-step guides\n• **Early detection signs** - What symptoms to watch for\n• **Risk reduction strategies** - Evidence-based prevention methods\n• **Screening guidelines** - When and how often to get checked\n• **Risk factors** - Understanding your personal risk profile\n\nWhat specific aspect would you like me to explain in detail?",
-            "source": "Breast Health Specialist",
-            "response_time": 0.1,
-            "speed": "💖 FOCUSED"
-        }
+        # 🎯 GUIDANCE FOR OTHER QUESTIONS - WILL USE RAG
+        return None
 
-# 🎯 FIXED: SIMPLE CHAT INTERFACE - NO BROKEN HTML
+def get_hybrid_response(user_message):
+    """🚀 HYBRID SYSTEM: Medical Responses + RAG"""
+    print(f"🎯 User asked: {user_message}")
+    
+    # Step 1: Try accurate medical responses first (fast & reliable)
+    medical_response = get_accurate_medical_response(user_message)
+    if medical_response:
+        medical_response["system"] = "Medical Knowledge Base"
+        return medical_response
+    
+    # Step 2: If no medical response, use RAG system
+    if RAG_AVAILABLE and st.session_state.use_rag:
+        try:
+            with st.spinner("🔍 Searching our medical documents..."):
+                relevant_chunks = rag_system.search(user_message, top_k=3)
+                if relevant_chunks:
+                    response = rag_system.get_answer(user_message, relevant_chunks)
+                    return {
+                        "response": response,
+                        "source": "Multiple Medical Documents",
+                        "response_time": 0.5,
+                        "speed": "🔍 RAG SEARCH",
+                        "system": "Document Search"
+                    }
+        except Exception as e:
+            st.error(f"RAG Search Error: {e}")
+    
+    # Step 3: Fallback response
+    return {
+        "response": """I specialize in providing specific, evidence-based information about breast health. Here are topics I can help with:
+
+• **Self-examination techniques** - Step-by-step guides
+• **Early detection signs** - What symptoms to watch for  
+• **Risk reduction strategies** - Evidence-based prevention methods
+• **Screening guidelines** - When and how often to get checked
+• **Risk factors** - Understanding your personal risk profile
+
+What specific aspect would you like me to explain in detail?""",
+        "source": "Breast Health Specialist",
+        "response_time": 0.1,
+        "speed": "💖 FOCUSED",
+        "system": "Medical Assistant"
+    }
+
+# 🎯 ENHANCED CHAT INTERFACE
 st.title("💬 Breast Health Assistant")
 st.markdown("Ask me anything about breast health, symptoms, or self-care")
+
+# System status
+col1, col2 = st.columns(2)
+with col1:
+    if RAG_AVAILABLE:
+        st.success("✅ RAG System: Active")
+    else:
+        st.warning("⚠️ RAG System: Not Available")
+
+with col2:
+    rag_toggle = st.toggle("Use Document Search", value=RAG_AVAILABLE, 
+                          help="Search through medical documents for detailed answers")
+    st.session_state.use_rag = rag_toggle and RAG_AVAILABLE
 
 # Welcome animation
 if welcome_animation:
     st_lottie(welcome_animation, speed=1, height=200, key="welcome_chat")
 
-# 💬 FIXED: SIMPLE MESSAGE DISPLAY - NO EXTRA DIVS!
+# 💬 MESSAGE DISPLAY
 st.markdown("### 💬 Conversation")
 for message in st.session_state.chat_messages:
     if message["role"] == "user":
@@ -317,6 +407,7 @@ for message in st.session_state.chat_messages:
                 {f'• {st.session_state.get("last_speed", "💖")}' if message == st.session_state.chat_messages[-1] else ''}
             </div>
             {f'<div class="source-badge">📚 {message["source"]}</div>' if message.get("source") not in ["Welcome", "User"] else ''}
+            {f'<div class="system-badge">⚡ {message.get("system", "Medical")}</div>' if message.get("system") and message.get("system") != "Medical" else ''}
         </div>
         """, unsafe_allow_html=True)
 
@@ -356,12 +447,11 @@ if st.button("📤 Send Message", use_container_width=True):
         # Add user message
         add_message("user", user_input, "You")
         
-        # Get AI response
-        with st.spinner("🔍 Getting accurate medical information..."):
-            ai_result = get_ai_response(user_input)
+        # Get hybrid response
+        ai_result = get_hybrid_response(user_input)
         
         # Add assistant message  
-        add_message("assistant", ai_result["response"], ai_result["source"])
+        add_message("assistant", ai_result["response"], ai_result["source"], ai_result["system"])
         
         # Store performance data
         st.session_state.last_response_time = ai_result["response_time"]
@@ -370,6 +460,30 @@ if st.button("📤 Send Message", use_container_width=True):
         # Clear input
         st.session_state.user_input = ""
         st.rerun()
+
+# Information about sources
+with st.expander("ℹ️ About Our Information System"):
+    st.markdown("""
+    **🤖 Hybrid AI System:**
+    
+    **Medical Knowledge Base:**
+    - Pre-verified, accurate medical information
+    - Fast responses for common questions
+    - Evidence-based guidelines
+    
+    **Document Search (RAG):**
+    - Searches through medical PDFs and documents
+    - Finds specific information from trusted sources
+    - Handles complex or detailed questions
+    
+    **Trusted Sources Include:**
+    - Kenya Ministry of Health guidelines
+    - World Health Organization recommendations  
+    - Cancer research foundation materials
+    - Medical institution publications
+    
+    *Note: This is for educational purposes only. Always consult healthcare professionals for medical advice.*
+    """)
 
 # Reset chat button
 if st.button("🔄 Start New Conversation", use_container_width=True):
