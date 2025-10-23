@@ -3,3 +3,8 @@ requests>=2.31.0
 pandas>=2.0.0
 streamlit-lottie>=0.0.5
 plotly>=5.15.0
+
+sentence-transformers
+scikit-learn
+numpy
+pypdf2
