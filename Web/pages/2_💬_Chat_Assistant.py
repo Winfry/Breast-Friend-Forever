@@ -10,11 +10,10 @@ import os
 # Add the backend to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
 
-# Silently try to load RAG system - no error messages to users
+# Silently try to load RAG system
 RAG_AVAILABLE = False
 rag_system = None
-# Dynamically load rag_system.py from the Backend app folder only if the file exists,
-# which avoids static import resolution errors in editors/linters.
+
 try:
     backend_app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
     rag_file = os.path.join(backend_app_path, 'rag_system.py')
@@ -27,8 +26,9 @@ try:
         if callable(get_rag_system):
             rag_system = get_rag_system()
             RAG_AVAILABLE = True
-except Exception:
-    # Silently fail - users don't need to know about technical backend
+            print("✅ RAG system loaded in chat assistant")
+except Exception as e:
+    print(f"❌ RAG system loading failed: {e}")
     pass
 
 def load_lottieurl(url: str):
@@ -42,7 +42,7 @@ def load_lottieurl(url: str):
 
 st.set_page_config(page_title="Chat Assistant", page_icon="💬", layout="wide")
 
-# 🎨 CLEANED CSS - NO SYSTEM BADGES
+# 🎨 CLEANED CSS - NO VISIBLE TIME TAGS
 st.markdown("""
     <style>
     .chat-container {
@@ -64,6 +64,7 @@ st.markdown("""
         max-width: 70%;
         box-shadow: 0 8px 25px rgba(255, 105, 180, 0.3);
         margin-bottom: 1rem;
+        position: relative;
     }
     
     .bot-message {
@@ -76,12 +77,13 @@ st.markdown("""
         box-shadow: 0 8px 25px rgba(255, 105, 180, 0.15);
         border: 2px solid #FFB6C1;
         margin-bottom: 1rem;
+        position: relative;
     }
     
     .message-time {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        margin-top: 0.5rem;
+        font-size: 0.7rem;
+        opacity: 0.6;
+        margin-top: 0.8rem;
         text-align: right;
     }
     
@@ -90,57 +92,74 @@ st.markdown("""
         color: white;
         padding: 0.3rem 0.8rem;
         border-radius: 15px;
-        font-size: 0.8rem;
-        margin-top: 0.5rem;
+        font-size: 0.7rem;
+        margin-top: 0.8rem;
         display: inline-block;
     }
 
-    .speed-indicator {
-        display: inline-block;
-        margin-left: 1rem;
-        font-weight: bold;
+    /* Hide any system elements */
+    .system-message {
+        display: none !important;
     }
     </style>
     """, unsafe_allow_html=True)
 
-# Load animations
-try:
-    welcome_animation = load_lottieurl("https://assets1.lottiefiles.com/packages/lf20_kdxn8rqk.json")
-except:
-    welcome_animation = None
-
-# 🚀 SESSION STATE - SIMPLIFIED
+# 🚀 SESSION STATE - FIXED
 if "chat_messages" not in st.session_state:
     st.session_state.chat_messages = []
-if "response_cache" not in st.session_state:
-    st.session_state.response_cache = {}
 if "user_input" not in st.session_state:
     st.session_state.user_input = ""
 
-# Welcome message - Clean and professional
+# Welcome message
 if not st.session_state.chat_messages:
     st.session_state.chat_messages.append({
         "role": "assistant", 
         "content": "Hello! 🌸 I'm your Breast Friend Forever companion. I'm here to provide caring, accurate information about breast health in a safe, supportive space. What would you like to know today? 💖",
-        "timestamp": datetime.now().strftime("%H:%M"),
-        "source": "Welcome"
+        "timestamp": datetime.now().strftime("%H:%M")
     })
 
-def add_message(role, content, source="User"):
-    """Add message to chat with timestamp - no technical details"""
+def add_message(role, content, source=None):
+    """Add message to chat with timestamp - CLEANED"""
     message = {
         "role": role,
         "content": content,
-        "timestamp": datetime.now().strftime("%H:%M"),
-        "source": source
+        "timestamp": datetime.now().strftime("%H:%M")
     }
+    if source and source != "Welcome":
+        message["source"] = source
     st.session_state.chat_messages.append(message)
 
+def get_rag_response(user_message):
+    """Get response from RAG system with proper error handling"""
+    if not RAG_AVAILABLE or rag_system is None:
+        return None
+    
+    try:
+        relevant_chunks = rag_system.search(user_message, top_k=5)
+        if relevant_chunks:
+            response = rag_system.get_answer(user_message, relevant_chunks)
+            return {
+                "response": response,
+                "source": "Medical Resources",
+                "response_time": 0.5,
+                "speed": "searching"
+            }
+    except Exception as e:
+        print(f"RAG search error: {e}")
+    
+    return None
+
 def get_accurate_medical_response(user_message):
-    """🚀 ACCURATE MEDICAL RESPONSES FROM TRUSTED SOURCES"""
+    """🚀 IMPROVED: Use RAG first, then fallback to predefined responses"""
+    
+    # Try RAG system first
+    rag_result = get_rag_response(user_message)
+    if rag_result:
+        return rag_result
+    
     user_lower = user_message.lower()
     
-    # 🎯 SELF-EXAM QUESTIONS
+    # Fallback to predefined responses only if RAG fails
     if any(word in user_lower for word in ['self exam', 'check', 'examine', 'how to check', 'self-exam']):
         return {
             "response": """**🔍 Step-by-Step Breast Self-Examination Guide:**
@@ -165,157 +184,34 @@ def get_accurate_medical_response(user_message):
 **🎯 What to Look For:** New lumps, thickening, swelling, dimpling, pain, nipple changes, discharge
 
 **💡 Important:** This complements but doesn't replace clinical exams!""",
-            "source": "Medical Guide",
-            "response_time": 0.1,
-            "speed": "instant"
+            "source": "Medical Guide"
         }
     
-    # 🎯 RISK REDUCTION QUESTIONS
     elif any(word in user_lower for word in ['reduce risk', 'prevent', 'prevention', 'lower risk', 'how to reduce']):
         return {
             "response": """**🛡️ Evidence-Based Breast Cancer Risk Reduction:**
 
 **✅ Proven Prevention Strategies:**
-• **Maintain Healthy Weight:** Obesity increases postmenopausal breast cancer risk by 30-60%
-• **Regular Exercise:** 150+ minutes of moderate activity weekly reduces risk by 10-20%
-• **Limit Alcohol:** Each daily drink increases risk by 7-10% - limit to 1 drink/day or less
-• **Avoid Smoking:** Smoking linked to increased breast cancer risk, especially in premenopausal women
-• **Breastfeed If Possible:** 12 months of breastfeeding reduces risk by 4.3%
+• **Maintain Healthy Weight:** Obesity increases postmenopausal breast cancer risk
+• **Regular Exercise:** 150+ minutes of moderate activity weekly reduces risk
+• **Limit Alcohol:** Each daily drink increases risk - limit to 1 drink/day or less
+• **Avoid Smoking:** Smoking linked to increased breast cancer risk
+• **Breastfeed If Possible:** Reduces breast cancer risk
 • **Healthy Diet:** Rich in fruits, vegetables, whole grains, and lean proteins
-• **Limit Hormone Therapy:** Discuss risks/benefits with your doctor, especially combined HRT
+• **Limit Hormone Therapy:** Discuss risks/benefits with your doctor
 
 **🌍 For African Women:**
 • Know your family history and share it with your doctor
 • Advocate for appropriate screening based on individual risk
-• Be aware of potentially more aggressive subtypes like triple-negative breast cancer
-• Participate in community awareness programs and clinical trials
+• Be aware of potentially more aggressive subtypes
+• Participate in community awareness programs
 
-**📊 Lifestyle Impact:**
-- Healthy lifestyle can reduce overall breast cancer risk by 25-30%
-- Regular screening improves early detection rates by 85%""",
-            "source": "Prevention Guidelines",
-            "response_time": 0.1,
-            "speed": "instant"
-        }
-    
-    # 🎯 RISK FACTOR QUESTIONS
-    elif any(word in user_lower for word in ['risk factor', 'what increases risk', 'main risk']):
-        return {
-            "response": """**📊 Breast Cancer Risk Factors:**
-
-**🔴 Non-Modifiable Risk Factors:**
-• **Gender:** Women are about 100 times more likely than men to develop breast cancer
-• **Age:** 2 out of 3 invasive breast cancers are found in women 55 or older
-• **Genetics:** 5-10% of breast cancers are hereditary (BRCA1, BRCA2 mutations)
-• **Family History:** Risk doubles with one first-degree relative (mother, sister, daughter)
-• **Personal History:** Previous breast cancer increases risk of new cancer in same or other breast
-• **Race/Ethnicity:** African American women under 45 have higher incidence rates
-• **Menstrual History:** Early periods (<12) or late menopause (>55) increase risk
-• **Breast Density:** Dense breast tissue increases risk 4-6 times
-
-**🟡 Modifiable Risk Factors:**
-• **Weight:** Obesity increases postmenopausal breast cancer risk by 30-60%
-• **Alcohol:** Each daily drink increases risk by 7-10%
-• **Physical Inactivity:** Sedentary lifestyle increases risk by 10-20%
-• **Hormone Therapy:** Combined HRT increases risk by 75% with 5+ years of use
-• **Reproductive History:** No children or first child after age 30 increases risk
-• **Not Breastfeeding:** Increases risk, especially for premenopausal breast cancer
-
-**🌍 African Women Specific:**
-• Higher rates of triple-negative breast cancer (more aggressive)
-• Often diagnosed at younger ages and later stages
-• May face barriers to healthcare access
-• Genetic differences in tumor biology""",
-            "source": "Risk Factors Guide", 
-            "response_time": 0.1,
-            "speed": "instant"
-        }
-    
-    # 🎯 EARLY SIGNS QUESTIONS
-    elif any(word in user_lower for word in ['early sign', 'symptom', 'warning', 'signs']):
-        return {
-            "response": """**🚨 Early Signs & Symptoms of Breast Cancer:**
-
-**🔴 Common Early Indicators:**
-• **New Lump or Mass:** Often painless, hard, with irregular edges (but can be tender, soft, rounded)
-• **Swelling:** Of all or part of breast, even if no distinct lump is felt
-• **Skin Changes:** Irritation, dimpling (peau d'orange - like orange peel), redness, scaliness
-• **Nipple Changes:** Pain, turning inward (retraction), redness, scaliness, thickening
-• **Nipple Discharge:** Other than breast milk, especially if bloody or clear
-• **Pain:** In breast or nipple area that doesn't go away
-• **Lymph Node Changes:** Swelling in armpit or around collarbone
-
-**⚡ When to See a Doctor Immediately:**
-• Any new breast change that persists through your menstrual cycle
-• A lump that doesn't go away after your period
-• Skin changes that don't resolve within a few weeks
-• Nipple discharge without stimulation
-• Any change that worries you or seems different from your normal breast tissue
-
-**💡 Important Facts:**
-- 80% of breast lumps are NOT cancerous
-- Many breast changes are normal and related to hormonal cycles
-- Early detection significantly improves treatment outcomes
-- When in doubt, get it checked out!""",
-            "source": "Early Detection Guide",
-            "response_time": 0.1, 
-            "speed": "instant"
-        }
-    
-    # 🎯 SCREENING QUESTIONS
-    elif any(word in user_lower for word in ['how often', 'frequency', 'when', 'screening', 'mammogram']):
-        return {
-            "response": """**📅 Breast Cancer Screening Guidelines:**
-
-**Self-Examination:**
-• **Monthly** - 3-5 days after your period ends
-• **Post-menopausal:** Same day each month (e.g., first day of month)
-
-**Clinical Breast Exam:**
-• **Ages 20-39:** Every 1-3 years
-• **Ages 40+:** Annually
-
-**Mammogram Screening:**
-• **Average Risk Women:** Start at age 40-50, continue annually or biennially
-• **High Risk Women:** Start earlier (age 25-30 or 10 years before youngest affected relative)
-
-**Additional Screening for High Risk:**
-• **Breast MRI:** Annual for BRCA carriers, strong family history, or certain high-risk conditions
-• **Ultrasound:** For dense breast tissue or when mammogram is inconclusive
-
-**🌍 African Women Considerations:**
-• Consider starting screenings earlier if family history exists
-• Discuss personalized screening plan with healthcare provider
-• Be proactive about follow-up on abnormal results
-• Know that dense breast tissue is common and may require additional imaging
-
-**💡 Early Detection Impact:**
-• 5-year survival rate: 99% for localized breast cancer
-• 5-year survival rate: 86% for regional spread
-• 5-year survival rate: 30% for distant metastasis""",
-            "source": "Screening Guidelines",
-            "response_time": 0.1,
-            "speed": "instant"
+**📊 Lifestyle Impact:** Healthy lifestyle can significantly reduce overall breast cancer risk""",
+            "source": "Prevention Guidelines"
         }
     
     else:
-        # 🎯 GUIDANCE FOR OTHER QUESTIONS - Try RAG if available
-        if RAG_AVAILABLE:
-            try:
-                relevant_chunks = rag_system.search(user_message, top_k=3)
-                if relevant_chunks:
-                    response = rag_system.get_answer(user_message, relevant_chunks)
-                    return {
-                        "response": response,
-                        "source": "Medical Resources",
-                        "response_time": 0.5,
-                        "speed": "searching"
-                    }
-            except Exception:
-                # Silently fall back to medical response
-                pass
-        
-        # Fallback response
+        # Final fallback
         return {
             "response": """I specialize in providing specific, evidence-based information about breast health. Here are topics I can help with:
 
@@ -326,25 +222,14 @@ def get_accurate_medical_response(user_message):
 • **Risk factors** - Understanding your personal risk profile
 
 What specific aspect would you like me to explain in detail?""",
-            "source": "Breast Health Guide",
-            "response_time": 0.1,
-            "speed": "instant"
+            "source": "Breast Health Guide"
         }
 
-def get_ai_response(user_message):
-    """🚀 GET RESPONSE - SILENT RAG INTEGRATION"""
-    return get_accurate_medical_response(user_message)
-
-# 🎯 CLEAN CHAT INTERFACE - NO TECHNICAL DETAILS
+# 🎯 CLEAN CHAT INTERFACE
 st.title("💬 Breast Health Assistant")
 st.markdown("Ask me anything about breast health, symptoms, or self-care")
 
-# Welcome animation
-if welcome_animation:
-    st_lottie(welcome_animation, speed=1, height=200, key="welcome_chat")
-
-# 💬 CLEAN MESSAGE DISPLAY - NO SYSTEM BADGES!
-st.markdown("### 💬 Conversation")
+# Display messages - FIXED HTML ISSUES
 for message in st.session_state.chat_messages:
     if message["role"] == "user":
         st.markdown(f"""
@@ -354,11 +239,12 @@ for message in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
     else:
+        source_badge = f'<div class="source-badge">📚 {message["source"]}</div>' if message.get("source") else ''
         st.markdown(f"""
         <div class="bot-message">
             {message["content"]}
             <div class="message-time">{message["timestamp"]}</div>
-            {f'<div class="source-badge">📚 {message["source"]}</div>' if message.get("source") and message["source"] != "Welcome" else ''}
+            {source_badge}
         </div>
         """, unsafe_allow_html=True)
 
@@ -396,20 +282,20 @@ if st.button("📤 Send Message", use_container_width=True):
         user_input = st.session_state.user_input_widget
         
         # Add user message
-        add_message("user", user_input, "You")
+        add_message("user", user_input)
         
         # Get AI response
-        with st.spinner("🔍 Finding the best information for you..."):
-            ai_result = get_ai_response(user_input)
+        with st.spinner("🔍 Finding the best medical information..."):
+            ai_result = get_accurate_medical_response(user_input)
         
         # Add assistant message  
-        add_message("assistant", ai_result["response"], ai_result["source"])
+        add_message("assistant", ai_result["response"], ai_result.get("source"))
         
         # Clear input
         st.session_state.user_input = ""
         st.rerun()
 
-# Information about sources (clean and professional)
+# Information about sources
 with st.expander("ℹ️ About Our Information"):
     st.markdown("""
     **Trusted Medical Sources:**
@@ -426,5 +312,4 @@ with st.expander("ℹ️ About Our Information"):
 # Reset chat button
 if st.button("🔄 Start New Conversation", use_container_width=True):
     st.session_state.chat_messages = []
-    st.session_state.response_cache = {}
     st.rerun()
