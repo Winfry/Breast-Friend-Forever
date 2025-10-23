@@ -13,10 +13,20 @@ sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', '
 # Silently try to load RAG system - no error messages to users
 RAG_AVAILABLE = False
 rag_system = None
+# Dynamically load rag_system.py from the Backend app folder only if the file exists,
+# which avoids static import resolution errors in editors/linters.
 try:
-    from rag_system import get_rag_system
-    rag_system = get_rag_system()
-    RAG_AVAILABLE = True
+    backend_app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
+    rag_file = os.path.join(backend_app_path, 'rag_system.py')
+    if os.path.exists(rag_file):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("rag_system", rag_file)
+        rag_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(rag_module)
+        get_rag_system = getattr(rag_module, "get_rag_system", None)
+        if callable(get_rag_system):
+            rag_system = get_rag_system()
+            RAG_AVAILABLE = True
 except Exception:
     # Silently fail - users don't need to know about technical backend
     pass
