@@ -479,3 +479,72 @@ setTimeout(scrollToBottom, 100);
 setTimeout(scrollToBottom, 400);
 </script>
 """, unsafe_allow_html=True)
+
+# 🎨 CLEAN CSS - NO VISIBLE TIME TAGS
+st.markdown("""
+    <style>
+    /* Your existing CSS stays here - DON'T TOUCH */
+    .chat-container {
+        max-height: 60vh;
+        overflow-y: auto;
+        padding: 2rem;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 25px;
+        margin: 2rem 0;
+        border: 3px solid #FFF0F5;
+    }
+    
+    /* ... ALL YOUR EXISTING CSS ... */
+    
+    </style>
+    
+    <!-- 🔽 ADD THIS PWA CODE RIGHT AFTER THE CSS 🔽 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#FF69B4">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    <script>
+    // PWA Installation Handler
+    let deferredPrompt;
+    const installButton = document.createElement('button');
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      
+      // Create install button
+      installButton.innerHTML = '📱 Install App';
+      installButton.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #FF69B4, #EC4899);
+        color: white;
+        border: none;
+        padding: 12px 18px;
+        border-radius: 25px;
+        font-weight: bold;
+        font-size: 14px;
+        z-index: 1000;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);
+      `;
+      
+      installButton.onclick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          installButton.style.display = 'none';
+        }
+        deferredPrompt = null;
+      };
+      
+      document.body.appendChild(installButton);
+    });
+    
+    window.addEventListener('appinstalled', () => {
+      installButton.style.display = 'none';
+    });
+    </script>
+    """, unsafe_allow_html=True)
