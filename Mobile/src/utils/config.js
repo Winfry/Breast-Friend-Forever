@@ -1,7 +1,7 @@
 // mobile/src/utils/config.js - Environment configuration
 const ENV = {
   development: {
-    API_BASE_URL: 'http://localhost:8000', // Local development
+    API_BASE_URL: 'http://192.168.100.5:8000', // Local development
     // API_BASE_URL: 'http://192.168.1.100:8000', // Local network
   },
   production: {
