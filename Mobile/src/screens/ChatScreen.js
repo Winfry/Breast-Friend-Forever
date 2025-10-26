@@ -78,42 +78,57 @@ const ChatScreen = () => {
   const sendMessage = async () => {
     if (!inputText.trim()) return;
 
-    const userMessage = {
-      id: Date.now(),
-      text: inputText,
-      isUser: true,
+  const userMessage = {
+    id: Date.now(),
+    text: inputText,
+    isUser: true,
+    timestamp: new Date(),
+  };
+
+  setMessages(prev => [...prev, userMessage]);
+  setInputText('');
+  setIsLoading(true);
+
+  try {
+    // Call your actual RAG backend
+    const response = await apiService.sendChatMessage(inputText);
+    
+    const botMessage = {
+      id: Date.now() + 1,
+      text: response.response || response.answer || "I've processed your question with our medical database.",
+      isUser: false,
       timestamp: new Date(),
+      suggestions: response.suggestions || [
+        "Learn more about this topic",
+        "Related health information",
+        "Find healthcare providers"
+      ]
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputText('');
-    setIsLoading(true);
-
-    try {
-      // Call your RAG backend here
-      const response = await apiService.sendMessage(inputText);
-      
-      const botMessage = {
-        id: Date.now() + 1,
-        text: response.response,
-        isUser: false,
-        timestamp: new Date(),
-        suggestions: response.suggestions
-      };
-
-      setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
-      const errorMessage = {
-        id: Date.now() + 1,
-        text: "I'm having trouble connecting to our knowledge base right now. Please try again shortly.",
-        isUser: false,
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
+    setMessages(prev => [...prev, botMessage]);
+  } catch (error) {
+    console.error('Chat error:', error);
+    
+    const errorMessage = {
+      id: Date.now() + 1,
+      text: `I'm having trouble connecting to our medical database right now. Error: ${error.message}`,
+      isUser: false,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, errorMessage]);
+    
+    // Show alert for network errors
+    if (error.message.includes('Network')) {
+      Alert.alert(
+        "Connection Issue",
+        "Please check your internet connection and try again.",
+        [{ text: "OK" }]
+      );
     }
-  };
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleQuickQuestion = (question) => {
     setInputText(question);
