@@ -254,7 +254,7 @@ st.markdown("### 📈 Your Learning Dashboard")
 stats_data = [
     {"number": "15+", "label": "Articles Available", "icon": "📖"},
     {"number": "8", "label": "PDF Guides", "icon": "📄"},
-    {"number": "5", "label": "Resource Categories", "icon": "🏷️"},
+    {"number": "5", "label": "Support Groups", "icon": "🫂"},
     {"number": f"{len(st.session_state.completed_resources)}", "label": "Completed", "icon": "✅"},
 ]
 
