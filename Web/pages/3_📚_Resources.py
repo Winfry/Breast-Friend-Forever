@@ -155,12 +155,15 @@ nutrition_breast_health_content = """
 - Anti-inflammatory properties
 
 ### 🌿 Fiber-Rich Foods
-- Whole grains, legumes, vegetables
+- wholewheat couscous and quinoa Pulses such as lentils and beans
+- Starchy foods such as potatoes and sweet potatoes, ideally
+with their skins on
+- Vegetables and fruits
 - Help eliminate excess estrogen
 - Support healthy digestion
 
 ### 🥜 Healthy Fats
-- Avocados, olive oil, nuts
+- Olive oil, rapeseed oil and their spreads,Oily fish such as salmon and mackerel, Avocado, Nuts and seeds
 - Support hormone balance
 - Aid nutrient absorption
 
