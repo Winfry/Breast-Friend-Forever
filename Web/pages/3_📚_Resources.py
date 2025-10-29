@@ -289,7 +289,7 @@ resources = {
             "description": "Learn about genetic, lifestyle, and environmental factors that affect breast cancer risk.",
             "category": "Education",
             "reading_time": "7 min", 
-            "author": "CDC - Centers for Disease Control",
+            "author": "Breast Cancer Research Foundation",
             "color": "#EC4899",
             "url": "https://www.bcrf.org/about-breast-cancer/risk-factors-for-breast-cancer/",
             "type": "external_article"
