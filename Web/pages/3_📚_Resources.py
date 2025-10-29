@@ -278,9 +278,9 @@ resources = {
             "description": "Comprehensive guide to performing breast self-exams with proper technique and timing.",
             "category": "Self Exam",
             "reading_time": "5 min",
-            "author": "Breast Cancer Research Foundation",
+            "author": "National Breast Cancer Foundation",
             "color": "#FF69B4",
-            "url": "https://www.bcrf.org/about-breast-cancer/risk-factors-for-breast-cancer/",
+            "url": "https://www.nationalbreastcancer.org/breast-self-exam/",
             "type": "external_article"
         },
         {
