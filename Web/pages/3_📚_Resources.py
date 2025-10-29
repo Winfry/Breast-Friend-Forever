@@ -677,9 +677,9 @@ support_groups = [
         "title": "Local Hospital Support Groups",
         "description": "In-person support groups hosted by cancer centers and hospitals nationwide.",
         "category": "Local In-Person",
-        "members": "Local Patients",
+        "members": "Faraja Cancer Support",
         "meeting_type": "Monthly Meetings",
-        "url": "https://www.cancer.gov/about-cancer/coping/adjusting-to-cancer/support-groups",
+        "url": "https://farajacancersupport.org/",
         "color": "#8B5CF6",
         "features": ["In-Person", "Local Community", "Hospital Resources", "Caregiver Support"]
     },
