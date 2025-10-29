@@ -300,7 +300,7 @@ resources = {
             "description": "Discover foods and dietary patterns that support breast health and overall wellness.",
             "category": "Lifestyle",
             "reading_time": "39 min",
-            "author": "BreastCancer.org",
+            "author": "Memorial Sloan Kettering Cancer Center",
             "color": "#DB2777",
             "url": "https://www.mskcc.org/cancer-care/patient-education/nutrition-and-breast-making-healthy-diet-decisions",
             "type": "external_article"
