@@ -601,6 +601,181 @@ for link in resources["external_links"]:
         
         st.markdown("---")
 
+
+# 🫂 SUPPORT GROUPS SECTION
+st.markdown("### 🫂 Support Groups & Communities")
+
+support_groups = [
+    {
+        "id": 1,
+        "title": "BreastCancer.org Community",
+        "description": "Largest online breast cancer community with discussion boards, live chats, and expert Q&A sessions.",
+        "category": "Online Community",
+        "members": "200,000+",
+        "meeting_type": "24/7 Online Forum",
+        "url": "https://community.breastcancer.org",
+        "color": "#7C3AED",
+        "features": ["Discussion Boards", "Live Chats", "Expert Q&A", "Resource Library"]
+    },
+    {
+        "id": 2,
+        "title": "American Cancer Society Reach to Recovery",
+        "description": "Connects newly diagnosed patients with survivors who have similar experiences and backgrounds.",
+        "category": "Peer Support",
+        "members": "Trained Volunteers",
+        "meeting_type": "One-on-One Matching",
+        "url": "https://www.cancer.org/support-programs-and-services/reach-to-recovery.html",
+        "color": "#EC4899",
+        "features": ["One-on-One Support", "Trained Volunteers", "Phone/Online", "All Stages"]
+    },
+    {
+        "id": 3,
+        "title": "Young Survival Coalition (YSC)",
+        "description": "Dedicated to young women under 40 diagnosed with breast cancer. In-person and virtual meetings.",
+        "category": "Age-Specific",
+        "members": "10,000+",
+        "meeting_type": "Virtual & In-Person",
+        "url": "https://www.youngsurvival.org",
+        "color": "#10B981",
+        "features": ["Under 40 Focus", "Virtual Meetings", "Local Chapters", "Advocacy"]
+    },
+    {
+        "id": 4,
+        "title": "CancerCare Support Groups",
+        "description": "Professional-led support groups with oncology social workers. Free and confidential.",
+        "category": "Professional-Led",
+        "members": "Licensed Leaders",
+        "meeting_type": "Weekly Virtual",
+        "url": "https://www.cancercare.org/support_groups",
+        "color": "#3B82F6",
+        "features": ["Professional Led", "Free Service", "All Cancer Types", "Multiple Languages"]
+    },
+    {
+        "id": 5,
+        "title": "Metastatic Breast Cancer Network",
+        "description": "Specific support for those living with metastatic (stage IV) breast cancer.",
+        "category": "Stage-Specific",
+        "members": "MBC Community",
+        "meeting_type": "Online & Conferences",
+        "url": "https://www.mbcn.org",
+        "color": "#EF4444",
+        "features": ["Stage IV Focus", "Research Updates", "Advocacy", "Annual Conference"]
+    },
+    {
+        "id": 6,
+        "title": "Facebook Breast Cancer Support Groups",
+        "description": "Various private Facebook groups for different subtypes and stages of breast cancer.",
+        "category": "Social Media",
+        "members": "Varies by Group",
+        "meeting_type": "24/7 Online",
+        "url": "https://www.facebook.com/search/groups?q=breast%20cancer%20support",
+        "color": "#1877F2",
+        "features": ["Private Groups", "Instant Support", "Global Community", "Multiple Subgroups"]
+    },
+    {
+        "id": 7,
+        "title": "Local Hospital Support Groups",
+        "description": "In-person support groups hosted by cancer centers and hospitals nationwide.",
+        "category": "Local In-Person",
+        "members": "Local Patients",
+        "meeting_type": "Monthly Meetings",
+        "url": "https://www.cancer.gov/about-cancer/coping/adjusting-to-cancer/support-groups",
+        "color": "#8B5CF6",
+        "features": ["In-Person", "Local Community", "Hospital Resources", "Caregiver Support"]
+    },
+    {
+        "id": 8,
+        "title": "Breast Cancer Helpline & Hotlines",
+        "description": "Immediate phone support from trained specialists and survivors.",
+        "category": "Phone Support",
+        "members": "Trained Staff",
+        "meeting_type": "24/7 Phone",
+        "url": "tel:1-877-465-6636",
+        "color": "#F59E0B",
+        "features": ["24/7 Availability", "Immediate Support", "Confidential", "Multiple Languages"]
+    }
+]
+
+for group in support_groups:
+    if selected_category != "All Categories" and selected_category not in ["Support", "Support Groups"]:
+        continue
+        
+    with st.container():
+        st.markdown(f"""
+            <div class="resource-card" style="border-left-color: {group['color']}; background: linear-gradient(135deg, #F0F4FF, #E0E7FF);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <h3 style="color: {group['color']}; margin: 0; flex: 1;">{group['title']}</h3>
+                    <span class="category-badge" style="background: {group['color']};">
+                        {group['category']}
+                    </span>
+                </div>
+                
+                <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">{group['description']}</p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                    <div style="background: rgba(255,255,255,0.7); padding: 0.8rem; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">👥 Members</div>
+                        <div style="font-weight: 600; color: {group['color']};">{group['members']}</div>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.7); padding: 0.8rem; border-radius: 10px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">📅 Format</div>
+                        <div style="font-weight: 600; color: {group['color']};">{group['meeting_type']}</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">✨ Features:</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        {''.join([f'<span style="background: {group["color"]}20; color: {group["color"]}; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; border: 1px solid {group["color"]}40;">{feature}</span>' for feature in group['features']])}
+                    </div>
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if group['category'] == "Phone Support":
+                st.markdown(f"""
+                    <a href="{group['url']}" style="
+                        background: linear-gradient(135deg, #10B981, #059669);
+                        color: white;
+                        padding: 0.8rem 1.5rem;
+                        border-radius: 25px;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-weight: 600;
+                        margin-right: 1rem;">
+                        📞 Call Now
+                    </a>
+                    <span style="color: #666; font-size: 0.9rem;">Available 24/7</span>
+                """, unsafe_allow_html=True)
+            else:
+                st.markdown(f"""
+                    <a href="{group['url']}" target="_blank" style="
+                        background: linear-gradient(135deg, {group['color']}, {group['color']}CC);
+                        color: white;
+                        padding: 0.8rem 1.5rem;
+                        border-radius: 25px;
+                        text-decoration: none;
+                        display: inline-block;
+                        font-weight: 600;
+                        margin-right: 1rem;">
+                        🫂 Join Community
+                    </a>
+                """, unsafe_allow_html=True)
+        
+        with col2:
+            if st.button(f"💾 Save Group", key=f"save_group_{group['id']}"):
+                st.success(f"✅ Saved {group['title']} to your resources!")
+        
+        st.markdown("---")
+
+# Also update the category filter to include Support Groups
+# Replace your existing categories line with:
+categories = ["All Categories", "Self Exam", "Education", "Lifestyle", "Screening", "Global Health", "Support", "Support Groups", "Research", "Case Studies"]
+
+
+
 # 🎯 LEARNING PATH PROGRESS
 st.markdown("### 🎯 Your Learning Journey")
 
