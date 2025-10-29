@@ -239,37 +239,7 @@ st.markdown("""
     """, unsafe_allow_html=True)
 
 # 🏥 ENHANCED HOSPITAL DATA PROCESSING
-@st.cache_data
-def load_hospital_data():
-    try:
-        # Construct path to CSV file
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-        csv_path = os.path.join(project_root, 'Backend', 'app', 'data', 'hospitals.csv')
-        
-        if os.path.exists(csv_path):
-            df = pd.read_csv(csv_path, encoding='latin1')
-            
-            # Get unique counties for the filter
-            counties = ["All Counties"] + sorted(df['County'].dropna().unique().tolist()) if 'County' in df.columns else ["All Counties"]
-            
-            return df, counties
-        else:
-            st.warning("⚠️ CSV file not found. Using sample data.")
-            return None, None
-        
-    except Exception as e:
-        st.error(f"❌ Error loading CSV: {str(e)}")
-        return None, None
 
-# Load the data
-hospital_df, available_counties = load_hospital_data()
-
-# If no counties were loaded, use default ones
-if not available_counties or available_counties == ["All Counties"]:
-    available_counties = [
-        "All Counties", "Nairobi", "Mombasa", "Kisumu", "Nakuru", "Uasin Gishu", "Kiambu", "Machakos", 
-        "Meru", "Nyeri", "Garissa", "Kakamega", "Kisii", "Kericho", "Trans Nzoia", "Kilifi", "Lamu"
-    ]
 
 # 📍 SEARCH & FILTERS
 col1, col2 = st.columns(2)
