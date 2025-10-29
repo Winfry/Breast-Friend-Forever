@@ -275,31 +275,92 @@ def handle_reaction(message_id, reaction_type):
     return False
 
 # Function to escape HTML and preserve emojis
+# Function to escape HTML and preserve emojis - FIXED VERSION
 def safe_message_display(text):
     """Escape HTML but preserve emojis and basic formatting"""
     if not text:
         return ""
-    # First escape HTML
+    # First escape HTML to prevent XSS
     safe_text = html.escape(text)
+    # Convert escaped quotes back to normal quotes for display
+    safe_text = safe_text.replace('&quot;', '"').replace('&#x27;', "'")
     # Allow some safe HTML tags and emojis
     safe_text = safe_text.replace('&lt;br&gt;', '<br>')
     safe_text = safe_text.replace('&lt;b&gt;', '<b>').replace('&lt;/b&gt;', '</b>')
     safe_text = safe_text.replace('&lt;i&gt;', '<i>').replace('&lt;/i&gt;', '</i>')
     return safe_text
 
-# Real-time auto-refresh
-if (datetime.now() - st.session_state.last_update).seconds > 30:  # Auto-refresh every 30 seconds
-    st.rerun()
+# 📝 DISPLAY ENCOURAGING MESSAGES - FIXED VERSION
+st.markdown("### 📝 Wall of Hope & Strength")
 
-st.markdown("""
-    <div style="text-align: center; margin-bottom: 3rem;">
-        <h1 style="color: #FF69B4; font-size: 3rem; margin-bottom: 1rem;">
-            💕 Encouragement Wall
-        </h1>
-        <p style="font-size: 1.3rem; color: #666;">
-            A community of strength, hope, and shared courage 🌈
-        </p>
-    </div>
+# Sort and filter messages
+display_messages = st.session_state.messages.copy()
+
+if category_filter != "All Messages":
+    display_messages = [msg for msg in display_messages if msg["category"] == category_filter.lower()]
+
+if sort_by == "Newest First":
+    display_messages.sort(key=lambda x: x["timestamp"], reverse=True)
+elif sort_by == "Oldest First":
+    display_messages.sort(key=lambda x: x["timestamp"])
+elif sort_by == "Most Loved":
+    display_messages.sort(key=lambda x: sum(x["reactions"].values()), reverse=True)
+
+for message in display_messages:
+    # Determine card style based on category
+    category_styles = {
+        "hope": "hope-message",
+        "love": "love-message", 
+        "strength": "strength-message",
+        "courage": "courage-message",
+        "inspiration": "hope-message",
+        "support": "love-message",
+        "celebration": "courage-message"
+    }
+    
+    card_class = f"message-card {category_styles.get(message['category'], 'hope-message')}"
+    
+    # Time display
+    time_diff = datetime.now() - message['timestamp']
+    if time_diff.days > 0:
+        time_display = f"{time_diff.days} day{'s' if time_diff.days > 1 else ''} ago"
+    elif time_diff.seconds // 3600 > 0:
+        time_display = f"{time_diff.seconds // 3600} hour{'s' if time_diff.seconds // 3600 > 1 else ''} ago"
+    else:
+        time_display = "Just now"
+    
+    # Safe message display - FIXED
+    safe_message = safe_message_display(message['message'])
+    
+    # Display message card using a cleaner approach - FIXED
+    st.markdown(f"""
+        <div class="{card_class}">
+            <div style="display: flex; align-items: flex-start; margin-bottom: 1.5rem;">
+                <div class="user-avatar">
+                    {message['avatar']}
+                </div>
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 0.5rem 0; color: #1F2937;">{message['user']}</h4>
+                    <p style="margin: 0; color: #6B7280; font-size: 0.9rem;">{time_display}</p>
+                </div>
+            </div>
+            
+            <div class="message-content">
+                {safe_message}
+            </div>
+            
+            <div class="reaction-stats">
+                <div class="reaction-count" style="color: #EF4444;">
+                    💖 {message['reactions']['hearts']}
+                </div>
+                <div class="reaction-count" style="color: #F59E0B;">
+                    🌟 {message['reactions']['sparks']}
+                </div>
+                <div class="reaction-count" style="color: #8B5CF6;">
+                    🌈 {message['reactions']['rainbows']}
+                </div>
+            </div>
+        </div>
     """, unsafe_allow_html=True)
 
 # Welcome animation
