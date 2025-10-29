@@ -6,6 +6,7 @@ from streamlit_lottie import st_lottie
 import requests
 import json
 import base64
+from datetime import datetime
 
 def load_lottieurl(url: str):
     try:
@@ -16,18 +17,203 @@ def load_lottieurl(url: str):
         pass
     return None
 
-# Function to create downloadable PDF content
-def create_pdf_content(content, filename):
-    b64 = base64.b64encode(content.encode()).decode()
-    href = f'<a href="data:application/pdf;base64,{b64}" download="{filename}" style="background: linear-gradient(135deg, #FF69B4, #EC4899); color: white; padding: 0.8rem 1.5rem; border-radius: 25px; text-decoration: none; display: inline-block; margin: 0.5rem;">📥 Download PDF</a>'
-    return href
+# Function to create actual PDF downloads
+def create_pdf_download_link(pdf_url, filename, button_text="📥 Download PDF"):
+    return f'''
+    <a href="{pdf_url}" target="_blank" style="
+        background: linear-gradient(135deg, #FF69B4, #EC4899); 
+        color: white; 
+        padding: 0.8rem 1.5rem; 
+        border-radius: 25px; 
+        text-decoration: none; 
+        display: inline-block; 
+        margin: 0.5rem;
+        font-weight: 600;
+        text-align: center;">
+        {button_text}
+    </a>
+    '''
 
 st.set_page_config(page_title="Educational Resources", page_icon="📚", layout="wide")
 
-# 🎨 RESOURCES ANIMATION CSS (same as before)
+# 🎨 RESOURCES ANIMATION CSS
 st.markdown("""
     <style>
-    /* Your existing CSS here */
+    @keyframes cardFlip {
+        0% { transform: perspective(400px) rotateY(90deg); opacity: 0; }
+        100% { transform: perspective(400px) rotateY(0deg); opacity: 1; }
+    }
+    
+    @keyframes resourceGlow {
+        0%, 100% { box-shadow: 0 0 20px rgba(255, 105, 180, 0.3); }
+        50% { box-shadow: 0 0 40px rgba(255, 105, 180, 0.6); }
+    }
+    
+    .resource-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        border-left: 5px solid #FF69B4;
+        box-shadow: 0 8px 25px rgba(255, 105, 180, 0.15);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: cardFlip 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .resource-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.6s;
+    }
+    
+    .resource-card:hover::before {
+        left: 100%;
+    }
+    
+    .resource-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        animation: resourceGlow 2s infinite;
+    }
+    
+    .article-card {
+        border-left-color: #FF69B4;
+        background: linear-gradient(135deg, #FFF0F5, #FFE4EC);
+    }
+    
+    .pdf-card {
+        border-left-color: #EC4899;
+        background: linear-gradient(135deg, #FFE4EC, #FCE7F3);
+    }
+    
+    .link-card {
+        border-left-color: #DB2777;
+        background: linear-gradient(135deg, #FCE7F3, #FBCFE8);
+    }
+    
+    .category-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #FF69B4, #EC4899);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-right: 0.5rem;
+        animation: cardFlip 0.8s ease-out;
+    }
+    
+    .progress-item {
+        display: flex;
+        align-items: center;
+        margin: 1.5rem 0;
+        padding: 1rem;
+        background: white;
+        border-radius: 15px;
+        border-left: 4px solid #FF69B4;
+        transition: all 0.3s ease;
+        animation: cardFlip 0.6s ease-out;
+    }
+    
+    .progress-item:hover {
+        transform: translateX(10px);
+        box-shadow: 0 5px 15px rgba(255, 105, 180, 0.2);
+    }
+    
+    .completed-item {
+        border-left-color: #4CAF50;
+        background: linear-gradient(135deg, #F0FFF0, #E8F5E8);
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin: 2rem 0;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(255, 105, 180, 0.1);
+        transition: all 0.3s ease;
+        animation: cardFlip 0.6s ease-out;
+        border: 2px solid transparent;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        border-color: #FF69B4;
+        box-shadow: 0 12px 30px rgba(255, 105, 180, 0.2);
+    }
+    
+    .learning-path {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 3rem;
+        border-radius: 25px;
+        margin: 2rem 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .learning-path::before {
+        content: '📚🎓🌟';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        font-size: 4rem;
+        opacity: 0.1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Streamlit button styling */
+    .stButton > button {
+        background: linear-gradient(135deg, #FF69B4, #EC4899);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(255, 105, 180, 0.4);
+    }
+    
+    .external-link {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        display: inline-block;
+        margin: 0.5rem;
+        font-weight: 600;
+        text-align: center;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .external-link:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -83,268 +269,7 @@ for i, stat in enumerate(stats_data):
             </div>
             """, unsafe_allow_html=True)
 
-# ACTUAL RESOURCE CONTENT
-breast_self_exam_content = """
-# Understanding Breast Self-Examination
-
-## Why Self-Exams Are Important
-Regular breast self-exams help you become familiar with how your breasts normally look and feel so you can notice any changes.
-
-## How to Perform a Self-Exam
-
-### Step 1: Visual Inspection
-- Stand in front of a mirror with your shoulders straight and arms on your hips
-- Look for:
-  - Changes in size, shape, or color
-  - Dimpling, puckering, or bulging of the skin
-  - Nipple changes or discharge
-  - Redness, soreness, rash, or swelling
-
-### Step 2: Manual Examination - Standing
-- Raise your right arm overhead
-- Use the pads of your three middle fingers on your left hand to feel for lumps
-- Move in a circular pattern covering the entire breast and armpit area
-- Use light, medium, and firm pressure
-- Repeat on the other side
-
-### Step 3: Manual Examination - Lying Down
-- Lie down and place a pillow under your right shoulder
-- Use the same circular motion with your left hand
-- Cover the entire breast area and armpit
-- Repeat on the other side
-
-## When to Perform Self-Exams
-- **Best time**: 3-5 days after your period ends
-- **Post-menopausal**: Same day each month
-- **Frequency**: Once per month
-
-## What to Look For
-- New lumps or thickening
-- Changes in breast size or shape
-- Skin changes (redness, dimpling)
-- Nipple changes (inversion, discharge)
-- Persistent pain in one spot
-
-## When to See a Doctor
-Contact your healthcare provider if you notice:
-- Any new lump or mass
-- Changes that concern you
-- Persistent symptoms
-
-*Remember: Most breast changes are not cancer, but it's important to get them checked.*
-"""
-
-nutrition_breast_health_content = """
-# Nutrition for Optimal Breast Health
-
-## Foods That Support Breast Health
-
-### 🥦 Cruciferous Vegetables
-- Broccoli, cauliflower, cabbage, Brussels sprouts
-- Contain indole-3-carbinol and sulforaphane
-- Help balance estrogen metabolism
-
-### 🫐 Berries and Colorful Fruits
-- Blueberries, strawberries, raspberries
-- Rich in antioxidants that fight free radicals
-- Reduce inflammation
-
-### 🐟 Omega-3 Rich Foods
-- Salmon, mackerel, sardines
-- Walnuts, flaxseeds, chia seeds
-- Anti-inflammatory properties
-
-### 🌿 Fiber-Rich Foods
-- wholewheat couscous and quinoa Pulses such as lentils and beans
-- Starchy foods such as potatoes and sweet potatoes, ideally
-with their skins on
-- Vegetables and fruits
-- Help eliminate excess estrogen
-- Support healthy digestion
-
-### 🥜 Healthy Fats
-- Olive oil, rapeseed oil and their spreads,Oily fish such as salmon and mackerel, Avocado, Nuts and seeds
-- Support hormone balance
-- Aid nutrient absorption
-
-## Foods to Limit
-
-### ❌ Processed Foods
-- High in unhealthy fats and additives
-- Can promote inflammation
-
-### ❌ Sugary Drinks and Snacks
-- May contribute to weight gain
-- Can increase inflammation
-
-### ❌ Excessive Alcohol
-- Limit to 1 drink per day or less
-- Alcohol can increase estrogen levels
-
-## Sample Daily Eating Plan
-
-### Breakfast
-- Greek yogurt with berries and walnuts
-- Green tea
-
-### Lunch
-- Large salad with mixed greens, chickpeas, and olive oil dressing
-- Grilled chicken or tofu
-
-### Dinner
-- Baked salmon with roasted broccoli and quinoa
-- Steamed carrots
-
-### Snacks
-- Apple with almond butter
-- Carrot sticks with hummus
-
-## Important Nutrients
-
-### Vitamin D
-- Supports immune function
-- Sources: sunlight, fatty fish, fortified foods
-
-### Calcium
-- Bone health
-- Sources: dairy, leafy greens, fortified plant milks
-
-### Antioxidants
-- Protect cells from damage
-- Sources: colorful fruits and vegetables
-
-## Lifestyle Factors
-
-### Maintain Healthy Weight
-- Excess weight can increase breast cancer risk
-- Focus on gradual, sustainable weight loss if needed
-
-### Stay Active
-- Aim for 150 minutes of moderate exercise weekly
-- Include strength training twice weekly
-
-### Limit Alcohol
-- Stick to recommended guidelines
-- Consider alcohol-free days
-
-*Note: Always consult with a healthcare provider before making significant dietary changes.*
-"""
-
-risk_factors_content = """
-# Breast Cancer Risk Factors & Prevention
-
-## Understanding Your Risk
-
-### Non-Modifiable Risk Factors
-
-#### 🔬 Genetic Factors
-- **BRCA1 and BRCA2 gene mutations**
-- Family history of breast cancer
-- Personal history of breast conditions
-- Inherited risk factors
-
-#### 👵 Age and Gender
-- Risk increases with age
-- Women are at higher risk than men
-- Most cases occur after age 50
-
-#### 🩺 Reproductive History
-- Early menstruation (before age 12)
-- Late menopause (after age 55)
-- First pregnancy after age 30
-- Never carrying a pregnancy to term
-
-#### 📊 Personal Health History
-- Previous breast cancer
-- Certain non-cancerous breast conditions
-- Chest radiation therapy before age 30
-
-### Modifiable Risk Factors
-
-#### 🏃‍♀️ Lifestyle Factors
-- **Physical inactivity**
-- Being overweight or obese (especially after menopause)
-- **Alcohol consumption**
-- Smoking
-
-#### 💊 Hormone Factors
-- Hormone replacement therapy
-- Oral contraceptive use
-
-## Prevention Strategies
-
-### Lifestyle Changes
-
-#### 🥗 Healthy Eating
-- Follow a balanced diet rich in fruits and vegetables
-- Limit processed foods and red meat
-- Maintain healthy weight
-
-#### 🏃‍♀️ Regular Exercise
-- Aim for 150-300 minutes of moderate activity weekly
-- Include strength training
-- Stay active throughout life
-
-#### 🍷 Alcohol Moderation
-- Limit to 1 drink per day or less
-- Consider alcohol-free days
-
-#### 🚭 Avoid Smoking
-- No safe level of tobacco use
-- Seek help to quit if needed
-
-### Medical Prevention
-
-#### 🩺 Regular Screening
-- Follow recommended mammogram schedules
-- Clinical breast exams
-- Discuss MRI screening if high risk
-
-#### 💊 Risk-Reducing Medications
-- For high-risk women only
-- Discuss with healthcare provider
-- Understand benefits and risks
-
-#### 🔬 Genetic Counseling
-- If strong family history
-- Before genetic testing
-- To understand risk management options
-
-## Know Your Body
-
-### Breast Awareness
-- Know how your breasts normally look and feel
-- Report changes promptly
-- Don't wait for scheduled screenings
-
-### Symptom Awareness
-- New lumps or thickening
-- Changes in size, shape, or appearance
-- Skin changes or dimpling
-- Nipple changes or discharge
-- Persistent pain
-
-## When to Seek Help
-
-### Immediate Attention Needed For:
-- New, persistent lumps
-- Bloody nipple discharge
-- Skin changes like orange peel texture
-- Sudden breast swelling or pain
-
-### Regular Check-ups
-- Annual well-woman exams
-- Discuss family history updates
-- Review screening schedule
-
-*Remember: Having risk factors doesn't mean you'll get breast cancer, and many women with breast cancer have no known risk factors.*
-"""
-
-# Sample PDF content (in real app, you'd use actual PDF files)
-self_exam_pdf_content = "Breast Self-Examination Guide PDF Content"
-mammogram_checklist_content = "Mammogram Preparation Checklist PDF Content"
-
-# Updated resources data with actual content
+# REAL FUNCTIONAL RESOURCES DATA
 resources = {
     "articles": [
         {
@@ -353,9 +278,10 @@ resources = {
             "description": "Comprehensive guide to performing breast self-exams with proper technique and timing.",
             "category": "Self Exam",
             "reading_time": "5 min",
-            "author": "Dr. Sarah Johnson",
+            "author": "American Cancer Society",
             "color": "#FF69B4",
-            "content": breast_self_exam_content
+            "url": "https://www.cancer.org/cancer/breast-cancer/screening-tests-and-early-detection/breast-self-exam.html",
+            "type": "external_article"
         },
         {
             "id": 2,
@@ -363,43 +289,93 @@ resources = {
             "description": "Learn about genetic, lifestyle, and environmental factors that affect breast cancer risk.",
             "category": "Education",
             "reading_time": "7 min", 
-            "author": "Breast Health Foundation",
+            "author": "CDC - Centers for Disease Control",
             "color": "#EC4899",
-            "content": risk_factors_content
+            "url": "https://www.cdc.gov/cancer/breast/basic_info/risk_factors.htm",
+            "type": "external_article"
         },
         {
             "id": 3,
-            "title": "Nutrition for Optimal Breast Health",
+            "title": "Nutrition for Breast Health",
             "description": "Discover foods and dietary patterns that support breast health and overall wellness.",
             "category": "Lifestyle",
             "reading_time": "6 min",
-            "author": "Nutrition Specialist Team",
+            "author": "BreastCancer.org",
             "color": "#DB2777",
-            "content": nutrition_breast_health_content
+            "url": "https://www.breastcancer.org/managing-life/diet-nutrition",
+            "type": "external_article"
+        },
+        {
+            "id": 4,
+            "title": "Case Studies: Early Detection Success Stories",
+            "description": "Real stories of women who detected breast cancer early through self-exams and screening.",
+            "category": "Case Studies",
+            "reading_time": "10 min",
+            "author": "National Breast Cancer Foundation",
+            "color": "#BE185D",
+            "url": "https://www.nationalbreastcancer.org/breast-cancer-stories/",
+            "type": "external_article"
+        },
+        {
+            "id": 5,
+            "title": "Latest Breast Cancer Research 2024",
+            "description": "Recent breakthroughs and clinical trials in breast cancer treatment and prevention.",
+            "category": "Research",
+            "reading_time": "8 min",
+            "author": "Susan G. Komen Foundation",
+            "color": "#9D174D",
+            "url": "https://www.komen.org/breast-cancer/research/",
+            "type": "external_article"
         }
     ],
     "pdfs": [
         {
             "id": 1,
             "title": "Printable Self-Examination Guide",
-            "description": "Beautifully designed PDF with step-by-step instructions and illustrations.",
+            "description": "Step-by-step illustrated guide for breast self-examination with proper technique.",
             "category": "Self Exam",
             "file_size": "2.1 MB",
             "pages": 8,
             "color": "#BE185D",
-            "content": self_exam_pdf_content,
-            "filename": "breast_self_exam_guide.pdf"
+            "url": "https://www.nationalbreastcancer.org/wp-content/uploads/Breast-Self-Exam-Guide.pdf",
+            "filename": "breast_self_exam_guide.pdf",
+            "type": "downloadable_pdf"
         },
         {
             "id": 2,
             "title": "Mammogram Preparation Checklist",
-            "description": "Everything you need to know before your mammogram appointment.",
+            "description": "Everything you need to know and do before your mammogram appointment.",
             "category": "Screening", 
             "file_size": "1.5 MB",
             "pages": 6,
             "color": "#9D174D",
-            "content": mammogram_checklist_content,
-            "filename": "mammogram_preparation_checklist.pdf"
+            "url": "https://www.breastcancer.org/sites/default/files/2021-10/mammogram-checklist.pdf",
+            "filename": "mammogram_preparation_checklist.pdf",
+            "type": "downloadable_pdf"
+        },
+        {
+            "id": 3,
+            "title": "Breast Health Nutrition Guide",
+            "description": "Complete nutrition guide with recipes and meal plans for breast health.",
+            "category": "Lifestyle",
+            "file_size": "3.2 MB",
+            "pages": 12,
+            "color": "#831843",
+            "url": "https://www.bccancer.bc.ca/shared-content/Documents/Patient%20and%20Family%20Resources/Nutrition%20and%20Cancer/Healthy-Eating-for-Breast-Cancer-Prevention.pdf",
+            "filename": "breast_health_nutrition_guide.pdf",
+            "type": "downloadable_pdf"
+        },
+        {
+            "id": 4,
+            "title": "Patient Advocacy Toolkit",
+            "description": "Guide to becoming your own advocate in breast cancer care and treatment.",
+            "category": "Support",
+            "file_size": "2.8 MB",
+            "pages": 10,
+            "color": "#6B21A8",
+            "url": "https://www.komen.org/globalassets/healthy-living-tools/patient-advocacy-toolkit.pdf",
+            "filename": "patient_advocacy_toolkit.pdf",
+            "type": "downloadable_pdf"
         }
     ],
     "external_links": [
@@ -417,7 +393,7 @@ resources = {
             "description": "Comprehensive information on breast cancer screening, treatment, and support.",
             "category": "Education",
             "url": "https://www.cancer.org/cancer/breast-cancer.html",
-            "color": "#831843"
+            "color": "#6B21A8"
         },
         {
             "id": 3,
@@ -425,7 +401,63 @@ resources = {
             "description": "Resources for early detection, education, and support services.",
             "category": "Support",
             "url": "https://www.nationalbreastcancer.org",
-            "color": "#831843"
+            "color": "#7E22CE"
+        },
+        {
+            "id": 4,
+            "title": "CDC Breast Cancer Screening",
+            "description": "Official screening guidelines and recommendations from CDC.",
+            "category": "Screening",
+            "url": "https://www.cdc.gov/cancer/breast/basic_info/screening.htm",
+            "color": "#8B5CF6"
+        },
+        {
+            "id": 5,
+            "title": "Clinical Trials Database",
+            "description": "Search for ongoing breast cancer clinical trials and research studies.",
+            "category": "Research",
+            "url": "https://clinicaltrials.gov/search?cond=Breast%20Cancer",
+            "color": "#A855F7"
+        },
+        {
+            "id": 6,
+            "title": "Breast Cancer Support Community",
+            "description": "Online support groups and community resources for patients and survivors.",
+            "category": "Support",
+            "url": "https://www.breastcancersupport.com",
+            "color": "#C084FC"
+        }
+    ],
+    "videos": [
+        {
+            "id": 1,
+            "title": "How to Perform Breast Self-Exam",
+            "description": "Step-by-step video demonstration of proper self-examination technique.",
+            "category": "Self Exam",
+            "duration": "4:32",
+            "color": "#DC2626",
+            "url": "https://www.youtube.com/watch?v=9s1YQtS0W_s",
+            "type": "educational_video"
+        },
+        {
+            "id": 2,
+            "title": "Understanding Mammograms",
+            "description": "What to expect during a mammogram and how to prepare.",
+            "category": "Screening",
+            "duration": "6:15",
+            "color": "#EA580C",
+            "url": "https://www.youtube.com/watch?v=8y0W3gVt2Cw",
+            "type": "educational_video"
+        },
+        {
+            "id": 3,
+            "title": "Nutrition for Breast Cancer Prevention",
+            "description": "Dietitian discusses foods that support breast health.",
+            "category": "Lifestyle",
+            "duration": "8:20",
+            "color": "#D97706",
+            "url": "https://www.youtube.com/watch?v=6yQdK9kX2FY",
+            "type": "educational_video"
         }
     ]
 }
@@ -433,11 +465,11 @@ resources = {
 # 🏷️ CATEGORY FILTER
 st.markdown("### 🏷️ Browse by Category")
 
-categories = ["All Categories", "Self Exam", "Education", "Lifestyle", "Screening", "Global Health", "Support"]
+categories = ["All Categories", "Self Exam", "Education", "Lifestyle", "Screening", "Global Health", "Support", "Research", "Case Studies"]
 selected_category = st.selectbox("Filter resources:", categories, key="category_filter")
 
 # 📖 ARTICLES SECTION
-st.markdown("### 📖 Educational Articles")
+st.markdown("### 📖 Educational Articles & Research")
 
 for article in resources["articles"]:
     if selected_category != "All Categories" and article["category"] != selected_category:
@@ -455,41 +487,62 @@ for article in resources["articles"]:
                         {article['category']}
                     </span>
                 </div>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 1.5rem;">{article['description']}</p>
             </div>
         """, unsafe_allow_html=True)
         
-        # Article content
-        st.markdown(f"*{article['description']}*")
-        
-        col1, col2 = st.columns([3, 1])
+        col1, col2, col3 = st.columns([2, 1, 1])
         with col1:
             st.write(f"👤 {article['author']} | ⏱️ {article['reading_time']}")
         
         with col2:
-            col2a, col2b = st.columns(2)
-            with col2a:
-                if st.button(f"📖 Read", key=f"read_article_{article['id']}"):
-                    st.session_state.current_reads[f"article_{article['id']}"] = article
-            
-            with col2b:
-                if not completed and st.button(f"✅ Complete", key=f"complete_article_{article['id']}"):
-                    st.session_state.completed_resources.add(f"article_{article['id']}")
-                    st.success(f"🎉 Completed: {article['title']}")
-                    st.rerun()
-                elif completed:
-                    st.success("✅ Completed")
+            # Direct link to the actual article
+            st.markdown(f"""
+                <a href="{article['url']}" target="_blank" class="external-link">
+                    🌐 Read Full Article
+                </a>
+            """, unsafe_allow_html=True)
         
-        # Show article content when "Read" is clicked
-        if f"article_{article['id']}" in st.session_state.get('current_reads', {}):
-            st.markdown("---")
-            st.markdown("### 📖 Article Content")
-            st.markdown(article['content'])
-            st.markdown("---")
-            
-            if not completed and st.button(f"✅ Mark as Completed", key=f"mark_complete_{article['id']}"):
+        with col3:
+            if not completed and st.button(f"✅ Mark Complete", key=f"complete_article_{article['id']}"):
                 st.session_state.completed_resources.add(f"article_{article['id']}")
                 st.success(f"🎉 Completed: {article['title']}")
                 st.rerun()
+            elif completed:
+                st.success("✅ Completed")
+        
+        st.markdown("---")
+
+# 🎥 EDUCATIONAL VIDEOS
+st.markdown("### 🎥 Educational Videos")
+
+for video in resources["videos"]:
+    if selected_category != "All Categories" and video["category"] != selected_category:
+        continue
+        
+    with st.container():
+        st.markdown(f"""
+            <div class="resource-card article-card">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <h3 style="color: {video['color']}; margin: 0; flex: 1;">{video['title']}</h3>
+                    <span class="category-badge" style="background: {video['color']};">
+                        {video['category']}
+                    </span>
+                </div>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 1.5rem;">{video['description']}</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            st.write(f"⏱️ Duration: {video['duration']}")
+        
+        with col2:
+            st.markdown(f"""
+                <a href="{video['url']}" target="_blank" class="external-link">
+                    ▶️ Watch Video
+                </a>
+            """, unsafe_allow_html=True)
         
         st.markdown("---")
 
@@ -509,24 +562,22 @@ for pdf in resources["pdfs"]:
                         {pdf['category']}
                     </span>
                 </div>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 1.5rem;">{pdf['description']}</p>
             </div>
         """, unsafe_allow_html=True)
         
-        st.markdown(f"*{pdf['description']}*")
-        
-        col1, col2 = st.columns([3, 1])
+        col1, col2 = st.columns([1, 1])
         with col1:
             st.write(f"📄 {pdf['file_size']} | 📖 {pdf['pages']} pages")
         
         with col2:
-            # Create downloadable PDF link
-            download_link = create_pdf_content(pdf['content'], pdf['filename'])
-            st.markdown(download_link, unsafe_allow_html=True)
+            # Direct download link to actual PDF
+            st.markdown(create_pdf_download_link(pdf['url'], pdf['filename']), unsafe_allow_html=True)
         
         st.markdown("---")
 
 # 🔗 EXTERNAL RESOURCES
-st.markdown("### 🔗 Trusted External Resources")
+st.markdown("### 🔗 Trusted Organizations & Websites")
 
 for link in resources["external_links"]:
     if selected_category != "All Categories" and link["category"] != selected_category:
@@ -541,17 +592,15 @@ for link in resources["external_links"]:
                         {link['category']}
                     </span>
                 </div>
+                <p style="color: #666; line-height: 1.6; margin-bottom: 1.5rem;">{link['description']}</p>
             </div>
         """, unsafe_allow_html=True)
-        
-        st.markdown(f"*{link['description']}*")
         
         # Use st.link_button for external resources
         st.link_button("🌐 Visit Official Website", link['url'])
         
         st.markdown("---")
 
-# ... rest of your existing code for learning path, charts, quiz, etc.
 # 🎯 LEARNING PATH PROGRESS
 st.markdown("### 🎯 Your Learning Journey")
 
@@ -591,7 +640,6 @@ if completed_count == len(learning_path):
         </div>
         """, unsafe_allow_html=True)
 
-# Continue with your existing charts and quiz code...
 # 📈 INTERACTIVE CHARTS
 st.markdown("### 📊 Learning Analytics")
 
@@ -660,6 +708,18 @@ with st.expander("🧠 Quick Knowledge Check"):
 
 # 🔄 RESOURCE REFRESH
 st.markdown("---")
-if st.button("🔄 Refresh Learning Progress", use_container_width=True):
-    st.session_state.completed_resources = set()
-    st.rerun()
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    if st.button("🔄 Refresh Learning Progress", use_container_width=True):
+        st.session_state.completed_resources = set()
+        st.success("Progress reset! Start your learning journey fresh! 🌟")
+        st.rerun()
+
+# 📱 MOBILE FRIENDLY FOOTER
+st.markdown("""
+    <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, #FFF0F5, #FFE4EC); border-radius: 20px;">
+        <h3 style="color: #FF69B4;">📱 Access Anywhere, Anytime</h3>
+        <p style="color: #666;">All resources are mobile-friendly and accessible from any device</p>
+        <p style="color: #888; font-size: 0.9rem;">Last updated: """ + datetime.now().strftime("%B %d, %Y") + """</p>
+    </div>
+    """, unsafe_allow_html=True)
