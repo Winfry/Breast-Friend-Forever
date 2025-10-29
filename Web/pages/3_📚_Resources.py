@@ -311,9 +311,9 @@ resources = {
             "description": "Real stories of women who detected breast cancer early through self-exams and screening.",
             "category": "Case Studies",
             "reading_time": "10 min",
-            "author": "National Breast Cancer Foundation",
+            "author": "Cancer Research UK",
             "color": "#BE185D",
-            "url": "https://www.nationalbreastcancer.org/breast-cancer-stories/",
+            "url": "https://www.cancerresearchuk.org/about-cancer/breast-cancer/living-with/your-stories",
             "type": "external_article"
         },
         {
