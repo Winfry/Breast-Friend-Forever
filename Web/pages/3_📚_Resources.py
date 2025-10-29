@@ -690,7 +690,7 @@ support_groups = [
         "category": "Phone Support",
         "members": "Trained Staff",
         "meeting_type": "24/7 Phone",
-        "url": "tel:254 (0) 800 721 038",
+        "url": "tel:+ 254 (0) 800 721 038",
         "color": "#F59E0B",
         "features": ["24/7 Availability", "Immediate Support", "Confidential", "Multiple Languages"]
     }
