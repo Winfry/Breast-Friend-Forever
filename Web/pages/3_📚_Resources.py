@@ -214,6 +214,44 @@ st.markdown("""
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
     }
+
+    .support-group-card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin: 1.5rem 0;
+        border-left: 5px solid #7C3AED;
+        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.15);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        animation: cardFlip 0.6s ease-out;
+        position: relative;
+        overflow: hidden;
+        background: linear-gradient(135deg, #F0F4FF, #E0E7FF);
+    }
+    
+    .support-group-card:hover {
+        transform: translateY(-8px) scale(1.02);
+        animation: resourceGlow 2s infinite;
+    }
+    
+    .feature-tag {
+        background: rgba(124, 58, 237, 0.1);
+        color: #7C3AED;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        border: 1px solid rgba(124, 58, 237, 0.3);
+        display: inline-block;
+        margin: 0.2rem;
+    }
+    
+    .metric-box {
+        background: rgba(255,255,255,0.7);
+        padding: 0.8rem;
+        border-radius: 10px;
+        text-align: center;
+        margin: 0.5rem;
+    }
     </style>
     """, unsafe_allow_html=True)
 
@@ -232,6 +270,8 @@ if 'reading_progress' not in st.session_state:
     st.session_state.reading_progress = {}
 if 'current_reads' not in st.session_state:
     st.session_state.current_reads = {}
+if 'saved_groups' not in st.session_state:
+    st.session_state.saved_groups = set()
 
 st.markdown("""
     <div style="text-align: center; margin-bottom: 3rem;">
@@ -254,7 +294,7 @@ st.markdown("### 📈 Your Learning Dashboard")
 stats_data = [
     {"number": "15+", "label": "Articles Available", "icon": "📖"},
     {"number": "8", "label": "PDF Guides", "icon": "📄"},
-    {"number": "5", "label": "Support Groups", "icon": "🫂"},
+    {"number": "8", "label": "Support Groups", "icon": "🫂"},
     {"number": f"{len(st.session_state.completed_resources)}", "label": "Completed", "icon": "✅"},
 ]
 
@@ -601,8 +641,7 @@ for link in resources["external_links"]:
         
         st.markdown("---")
 
-
-# 🫂 SUPPORT GROUPS SECTION
+# 🫂 SUPPORT GROUPS SECTION - FIXED VERSION
 st.markdown("### 🫂 Support Groups & Communities")
 
 support_groups = [
@@ -690,7 +729,7 @@ support_groups = [
         "category": "Phone Support",
         "members": "Trained Staff",
         "meeting_type": "24/7 Phone",
-        "url": "tel:+ 254 (0) 800 721 038",
+        "url": "tel:+254800721038",
         "color": "#F59E0B",
         "features": ["24/7 Availability", "Immediate Support", "Confidential", "Multiple Languages"]
     }
@@ -701,37 +740,46 @@ for group in support_groups:
         continue
         
     with st.container():
-        st.markdown(f"""
-            <div class="resource-card" style="border-left-color: {group['color']}; background: linear-gradient(135deg, #F0F4FF, #E0E7FF);">
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-                    <h3 style="color: {group['color']}; margin: 0; flex: 1;">{group['title']}</h3>
-                    <span class="category-badge" style="background: {group['color']};">
-                        {group['category']}
-                    </span>
-                </div>
-                
-                <p style="color: #666; line-height: 1.6; margin-bottom: 1rem;">{group['description']}</p>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
-                    <div style="background: rgba(255,255,255,0.7); padding: 0.8rem; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">👥 Members</div>
-                        <div style="font-weight: 600; color: {group['color']};">{group['members']}</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.7); padding: 0.8rem; border-radius: 10px; text-align: center;">
-                        <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">📅 Format</div>
-                        <div style="font-weight: 600; color: {group['color']};">{group['meeting_type']}</div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">✨ Features:</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                        {''.join([f'<span style="background: {group["color"]}20; color: {group["color"]}; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; border: 1px solid {group["color"]}40;">{feature}</span>' for feature in group['features']])}
-                    </div>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
+        # Support Group Card - Using proper Streamlit components instead of raw HTML
+        st.markdown(f'<div class="support-group-card" style="border-left-color: {group["color"]};">', unsafe_allow_html=True)
         
+        # Title and category
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.markdown(f"<h3 style='color: {group['color']}; margin: 0;'>{group['title']}</h3>", unsafe_allow_html=True)
+        with col2:
+            st.markdown(f'<div class="category-badge" style="background: {group["color"]};">{group["category"]}</div>', unsafe_allow_html=True)
+        
+        # Description
+        st.markdown(f"<p style='color: #666; line-height: 1.6; margin-bottom: 1rem;'>{group['description']}</p>", unsafe_allow_html=True)
+        
+        # Members and format
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"""
+                <div class="metric-box">
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">👥 Members</div>
+                    <div style="font-weight: 600; color: {group['color']};">{group['members']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        with col2:
+            st.markdown(f"""
+                <div class="metric-box">
+                    <div style="font-size: 0.8rem; color: #666; margin-bottom: 0.3rem;">📅 Format</div>
+                    <div style="font-weight: 600; color: {group['color']};">{group['meeting_type']}</div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        # Features
+        st.markdown("<div style='font-size: 0.9rem; color: #666; margin: 1rem 0 0.5rem 0;'>✨ Features:</div>", unsafe_allow_html=True)
+        
+        # Create feature tags
+        features_html = "".join([f'<span class="feature-tag" style="border-color: {group["color"]}40; color: {group["color"]}; background: {group["color"]}20;">{feature}</span>' for feature in group['features']])
+        st.markdown(f'<div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem;">{features_html}</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Action buttons
         col1, col2 = st.columns([3, 1])
         with col1:
             if group['category'] == "Phone Support":
@@ -765,16 +813,16 @@ for group in support_groups:
                 """, unsafe_allow_html=True)
         
         with col2:
-            if st.button(f"💾 Save Group", key=f"save_group_{group['id']}"):
-                st.success(f"✅ Saved {group['title']} to your resources!")
+            saved = group['id'] in st.session_state.saved_groups
+            if saved:
+                st.success("✅ Saved")
+            else:
+                if st.button(f"💾 Save", key=f"save_group_{group['id']}"):
+                    st.session_state.saved_groups.add(group['id'])
+                    st.success(f"✅ Saved {group['title']}!")
+                    st.rerun()
         
         st.markdown("---")
-
-# Also update the category filter to include Support Groups
-# Replace your existing categories line with:
-categories = ["All Categories", "Self Exam", "Education", "Lifestyle", "Screening", "Global Health", "Support", "Support Groups", "Research", "Case Studies"]
-
-
 
 # 🎯 LEARNING PATH PROGRESS
 st.markdown("### 🎯 Your Learning Journey")
@@ -887,6 +935,7 @@ col1, col2, col3 = st.columns([1, 2, 1])
 with col2:
     if st.button("🔄 Refresh Learning Progress", use_container_width=True):
         st.session_state.completed_resources = set()
+        st.session_state.saved_groups = set()
         st.success("Progress reset! Start your learning journey fresh! 🌟")
         st.rerun()
 
