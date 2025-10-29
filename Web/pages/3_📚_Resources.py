@@ -299,10 +299,10 @@ resources = {
             "title": "Nutrition for Breast Health",
             "description": "Discover foods and dietary patterns that support breast health and overall wellness.",
             "category": "Lifestyle",
-            "reading_time": "6 min",
+            "reading_time": "39 min",
             "author": "BreastCancer.org",
             "color": "#DB2777",
-            "url": "https://www.breastcancer.org/managing-life/diet-nutrition",
+            "url": "https://www.mskcc.org/cancer-care/patient-education/nutrition-and-breast-making-healthy-diet-decisions",
             "type": "external_article"
         },
         {
