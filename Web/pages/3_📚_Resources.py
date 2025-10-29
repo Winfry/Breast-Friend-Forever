@@ -291,7 +291,7 @@ resources = {
             "reading_time": "7 min", 
             "author": "CDC - Centers for Disease Control",
             "color": "#EC4899",
-            "url": "https://www.cdc.gov/cancer/breast/basic_info/risk_factors.htm",
+            "url": "https://www.bcrf.org/about-breast-cancer/risk-factors-for-breast-cancer/",
             "type": "external_article"
         },
         {
