@@ -530,6 +530,173 @@ else:
 
 # Create clinic card function (keep your existing function)
 def create_clinic_card(clinic):
+    """Create a clinic card using Streamlit components"""
+    
+    # Status configuration
+    status_config = {
+        "open": ("status-open", "Open & Available", "clinic-card"),
+        "urgent": ("status-urgent", "Urgent Care", "clinic-card urgent-card"),
+        "premium": ("status-premium", "Premium Service", "clinic-card premium-card")
+    }
+    
+    status_class, status_text, card_class = status_config.get(
+        clinic.get("status", "open"), 
+        status_config["open"]
+    )
+    
+    # Create card using Streamlit components
+    with st.container():
+        st.markdown(f'<div class="{card_class}">', unsafe_allow_html=True)
+        
+        # Header section - ENHANCED NAME VISIBILITY
+        st.markdown(f"""
+            <div style="display: flex; align-items: center; margin-bottom: 1rem;">
+                <h2 style="color: #1F2937; margin: 0; display: flex; align-items: center; 
+                         font-size: 1.8rem; font-weight: 700; line-height: 1.2; 
+                         background: linear-gradient(135deg, #10B981, #059669);
+                         -webkit-background-clip: text;
+                         -webkit-text-fill-color: transparent;
+                         margin-right: 1rem;">
+                    {clinic['name']}
+                </h2>
+                <span class="status-badge {status_class}">{status_text}</span>
+                <span class="county-badge">{clinic['county']}</span>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Rating and info - moved to separate line for better readability
+        rating_info = f"⭐ {clinic['rating']}/5 ({clinic['reviews']} reviews)" if clinic.get('reviews') else f"⭐ {clinic['rating']}/5"
+        price_info = f"💰 {clinic['price_range']}" if clinic.get('price_range') else ""
+        hours_info = f"🕒 {clinic['hours']}" if clinic.get('hours') else ""
+        distance_info = f"📍 {clinic['distance']} km away"
+        
+        st.markdown(f"""
+            <div style="color: #6B7280; margin-bottom: 1.5rem; padding: 1rem; 
+                       background: #F8FAFC; border-radius: 10px; border-left: 4px solid #10B981;">
+                <div style="display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;">
+                    <span style="font-weight: 600;">{rating_info}</span>
+                    <span style="font-weight: 600;">{distance_info}</span>
+                    {f'<span style="font-weight: 600;">{price_info}</span>' if price_info else ''}
+                    {f'<span style="font-weight: 600;">{hours_info}</span>' if hours_info else ''}
+                </div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Specialty description
+        specialty = clinic.get('specialty', 'Healthcare services')
+        st.markdown(f"""
+            <div style="background: linear-gradient(135deg, #ECFDF5, #D1FAE5); 
+                       padding: 1.5rem; border-radius: 15px; margin-bottom: 1.5rem;
+                       border: 1px solid #10B981;">
+                <p style="color: #065F46; margin: 0; font-style: italic; font-weight: 500; font-size: 1.1rem;">
+                    "{specialty}"
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # Contact and services in columns
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            phone = clinic.get('phone', 'Contact not available')
+            address = clinic.get('address', 'Address not available')
+            emergency = clinic.get('emergency', '')
+            
+            st.markdown(f"""
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: #1F2937; font-size: 1.1rem;">📞 Contact</strong>
+                    <p style="margin: 0.5rem 0; color: #374151; font-weight: 500;">{phone}</p>
+                    <p style="margin: 0; color: #6B7280; font-size: 0.9rem;">{address}</p>
+                    {f'<p style="margin: 0.5rem 0 0 0; color: #EF4444; font-size: 0.9rem; font-weight: 600;">🚨 Emergency: {emergency}</p>' if emergency else ''}
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col2:
+            wait_time = clinic.get('wait_time', 'Not specified')
+            facility_type = clinic.get('type', 'Healthcare facility')
+            
+            st.markdown(f"""
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: #1F2937; font-size: 1.1rem;">🕒 Availability</strong>
+                    <p style="margin: 0.5rem 0; color: #374151; font-weight: 500;">Wait time: {wait_time}</p>
+                    <p style="margin: 0; color: #6B7280; font-size: 0.9rem;">Type: {facility_type}</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        with col3:
+            insurance_list = clinic.get('insurance', [])
+            if isinstance(insurance_list, str):
+                insurance_list = [insurance_list]
+            insurance_display = ', '.join(insurance_list[:3])
+            if len(insurance_list) > 3:
+                insurance_display += f" +{len(insurance_list)-3} more"
+            
+            st.markdown(f"""
+                <div style="margin-bottom: 1rem;">
+                    <strong style="color: #1F2937; font-size: 1.1rem;">💼 Insurance</strong>
+                    <p style="margin: 0.5rem 0; color: #374151; font-weight: 500;">{insurance_display if insurance_display else 'Not specified'}</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        # Special services
+        services_list = clinic.get('special_services', [])
+        if isinstance(services_list, str):
+            services_list = [services_list]
+        
+        if services_list:
+            st.markdown(f"""
+                <div style="margin-top: 1rem; padding: 1rem; background: #FFFBEB; border-radius: 10px; border: 1px solid #F59E0B;">
+                    <strong style="color: #92400E; font-size: 1.1rem;">🔬 Special Services:</strong>
+                    <p style="margin: 0.5rem 0; color: #B45309; font-weight: 500;">{', '.join(services_list)}</p>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
+        
+        # Footer with languages and appointment button
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            languages_list = clinic.get('languages', [])
+            if isinstance(languages_list, str):
+                languages_list = [languages_list]
+            
+            if languages_list:
+                st.markdown(f"""
+                    <div style="margin-top: 1rem; padding: 1rem; background: #EFF6FF; border-radius: 10px;">
+                        <strong style="color: #1E40AF; font-size: 1.1rem;">🗣️ Languages: </strong>
+                        <span style="color: #374151; font-weight: 500;">{', '.join(languages_list)}</span>
+                    </div>
+                """, unsafe_allow_html=True)
+        
+        with col2:
+            if st.button(f"📅 Book Appointment", key=f"appt_btn_{clinic['id']}", use_container_width=True):
+                st.session_state[f"show_date_{clinic['id']}"] = True
+            
+        # Date selection (only shown when button is clicked)
+        if st.session_state.get(f"show_date_{clinic['id']}", False):
+            st.markdown("---")
+            st.markdown("### 📋 Schedule Your Visit")
+            date_col1, date_col2, date_col3 = st.columns([1, 1, 2])
+            with date_col1:
+                if st.button(f"📞 Call Now", key=f"call_{clinic['id']}", use_container_width=True):
+                    st.info(f"📞 Calling {clinic['name']} at {clinic.get('phone', 'number not available')}")
+            
+            with date_col2:
+                if st.button(f"📍 Get Directions", key=f"dir_{clinic['id']}", use_container_width=True):
+                    st.info(f"🗺️ Getting directions to {clinic.get('address', 'this facility')}")
+            
+            with date_col3:
+                date = st.date_input("Select appointment date", key=f"date_{clinic['id']}")
+                if st.button(f"✅ Confirm Appointment", key=f"confirm_{clinic['id']}", use_container_width=True):
+                    st.session_state.appointments.append({
+                        "clinic": clinic['name'],
+                        "date": date,
+                        "status": "Scheduled"
+                    })
+                    st.success(f"🎉 Appointment booked at {clinic['name']} for {date}!")
+                    st.session_state[f"show_date_{clinic['id']}"] = False
+        
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # 🗺️ INTERACTIVE MAP VISUALIZATION
 st.markdown("### 🗺️ Screening Centers Across Kenya")
