@@ -12,6 +12,10 @@ passlib[bcrypt]
 aiofiles
 python-dotenv
 pytest
+sentence-transformers
+scikit-learn
+numpy
+pypdf2
 
 # 🆕 COMPATIBLE VERSIONS - No conflicts!
 httpx  # Updated to satisfy duckduckgo-search
