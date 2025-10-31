@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 # Import all endpoint routers
-from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam
+from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile 
 from app.core.config import settings
 
 # Initialize FastAPI app with metadata
@@ -35,6 +35,7 @@ app.include_router(hospitals.router, prefix="/api/v1/hospitals", tags=["Hospital
 app.include_router(resources.router, prefix="/api/v1/resources", tags=["Resources"])
 app.include_router(encouragement.router, prefix="/api/v1/encouragement", tags=["Encouragement"])
 app.include_router(self_exam.router, prefix="/api/v1/self_exam", tags=["Self Exam"])
+app.include_router(mobile.router, prefix="/api/v1/mobile", tags=["Mobile"])
 
 # Root endpoint - API welcome message
 @app.get("/")
