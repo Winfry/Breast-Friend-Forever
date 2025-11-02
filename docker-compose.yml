@@ -1,9 +1,25 @@
 version: '3.8'
+
 services:
-  breast-friend:
+  breast-friend-app:
     build: .
     ports:
-      - "8501:8501"  # Frontend
-      - "8000:8000"  # Backend
+      - "8000:8000"
     environment:
-      - PYTHONPATH=/app/Backend/app
+      - ENVIRONMENT=production
+      - DEBUG=false
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+
+  # Add Redis for caching (optional)
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
