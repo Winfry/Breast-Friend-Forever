@@ -1,101 +1,172 @@
-// mobile/src/styles/GlobalStyles.js - Global styling constants
-import { StyleSheet, Dimensions } from 'react-native';
-
-const { width, height } = Dimensions.get('window');
+// src/styles/globalStyles.js
+import { StyleSheet, Platform } from 'react-native';
+import Colors from './colors';
 
 export const GlobalStyles = StyleSheet.create({
-  // Colors
-  colors: {
-    primary: '#FF69B4',
-    primaryDark: '#EC4899',
-    primaryLight: '#FFF0F5',
-    secondary: '#10B981',
-    background: '#FFFFFF',
-    text: {
-      primary: '#1F2937',
-      secondary: '#6B7280',
-      light: '#9CA3AF'
-    }
+  // Layout
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
   },
-
+  screenContainer: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    paddingHorizontal: 16,
+  },
+  
+  // Typography
+  titleLarge: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    lineHeight: 40,
+  },
+  titleMedium: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    lineHeight: 32,
+  },
+  titleSmall: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: Colors.textPrimary,
+    lineHeight: 28,
+  },
+  bodyLarge: {
+    fontSize: 18,
+    color: Colors.textPrimary,
+    lineHeight: 24,
+  },
+  bodyMedium: {
+    fontSize: 16,
+    color: Colors.textPrimary,
+    lineHeight: 22,
+  },
+  bodySmall: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+  },
+  caption: {
+    fontSize: 12,
+    color: Colors.textLight,
+    lineHeight: 16,
+  },
+  
   // Spacing
   spacing: {
     xs: 4,
     sm: 8,
     md: 16,
     lg: 24,
-    xl: 32
+    xl: 32,
+    xxl: 48,
   },
-
-  // Typography
-  typography: {
-    header: {
-      fontSize: 28,
-      fontWeight: 'bold',
-      color: '#1F2937',
-    },
-    subheader: {
-      fontSize: 20,
-      fontWeight: '600',
-      color: '#1F2937',
-    },
-    body: {
-      fontSize: 16,
-      color: '#6B7280',
-      lineHeight: 22,
-    },
-    caption: {
-      fontSize: 14,
-      color: '#9CA3AF',
-    }
+  
+  // Shadows
+  shadow: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
-
-  // Layout
-  container: {
-    flex: 1,
-    backgroundColor: '#FFF0F5',
+  shadowLarge: {
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 8,
+      },
+      android: {
+        elevation: 6,
+      },
+    }),
   },
-  screenContainer: {
-    flex: 1,
-    backgroundColor: '#FFF0F5',
-    paddingHorizontal: 16,
+  
+  // Borders
+  border: {
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
+  borderPrimary: {
+    borderWidth: 1,
+    borderColor: Colors.primary,
+  },
+  
+  // Corners
+  borderRadius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 20,
+    round: 999,
+  },
+  
+  // Cards
   card: {
-    backgroundColor: 'white',
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
     padding: 16,
     marginVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
-
+  
   // Buttons
   button: {
     paddingVertical: 12,
     paddingHorizontal: 24,
-    borderRadius: 12,
+    borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonPrimary: {
-    backgroundColor: '#FF69B4',
+    backgroundColor: Colors.primary,
   },
   buttonSecondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: '#FF69B4',
+    backgroundColor: Colors.surface,
+    borderWidth: 1,
+    borderColor: Colors.primary,
   },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: 'white',
+  
+  // Utility classes
+  center: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  buttonTextSecondary: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#FF69B4',
-  }
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  rowBetween: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  flex1: {
+    flex: 1,
+  },
+  textCenter: {
+    textAlign: 'center',
+  },
 });
+
+export default GlobalStyles;
