@@ -11,6 +11,7 @@ import HospitalsScreen from './src/screens/HospitalsScreen';
 import ResourcesScreen from './src/screens/ResourcesScreen';
 import EncouragementScreen from './src/screens/EncouragementScreen';
 import SelfExamScreen from './src/screens/SelfExamScreen';
+import MobileFeaturesScreen from './src/screens/MobileFeaturesScreen';
 
 // Import styles
 import Colors from './src/styles/colors';
