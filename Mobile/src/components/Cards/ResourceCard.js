@@ -3,7 +3,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../styles/colors';
-import GlobalStyles from '../../styles/globalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const ResourceCard = ({
   title,
