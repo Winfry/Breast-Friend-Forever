@@ -4,9 +4,12 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: API_CONFIG.BASE_URL,
   timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Health check (from your Streamlit connection check)
+// Health check - matches your Streamlit connection check
 export const checkBackendHealth = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.HEALTH);
@@ -17,7 +20,7 @@ export const checkBackendHealth = async () => {
   }
 };
 
-// Chat functionality (mirroring Streamlit chat)
+// Chat - matches your FastAPI chatbot endpoint
 export const sendChatMessage = async (message) => {
   try {
     const response = await api.post(API_CONFIG.ENDPOINTS.CHAT, { 
@@ -26,11 +29,11 @@ export const sendChatMessage = async (message) => {
     return response.data;
   } catch (error) {
     console.error('Chat API Error:', error);
-    throw new Error('Failed to send message');
+    throw new Error('Failed to send message. Please check your connection.');
   }
 };
 
-// Resources (PDFs from your backend)
+// Resources - matches your FastAPI resources endpoint
 export const getResources = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.RESOURCES);
@@ -41,7 +44,7 @@ export const getResources = async () => {
   }
 };
 
-// Hospitals data
+// Hospitals - matches your FastAPI hospitals endpoint
 export const getHospitals = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.HOSPITALS);
@@ -52,7 +55,7 @@ export const getHospitals = async () => {
   }
 };
 
-// Encouragement messages
+// Encouragement - matches your FastAPI encouragement endpoint
 export const getEncouragement = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.ENCOURAGEMENT);
@@ -63,7 +66,7 @@ export const getEncouragement = async () => {
   }
 };
 
-// Self-exam guide
+// Self Exam - matches your FastAPI self_exam endpoint
 export const getSelfExamGuide = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.SELF_EXAM);
@@ -74,7 +77,7 @@ export const getSelfExamGuide = async () => {
   }
 };
 
-// Mobile-specific features
+// Mobile features - matches your FastAPI mobile endpoint
 export const getMobileFeatures = async () => {
   try {
     const response = await api.get(API_CONFIG.ENDPOINTS.MOBILE);
