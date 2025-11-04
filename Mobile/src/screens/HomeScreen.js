@@ -57,6 +57,12 @@ export default function HomeScreen({ navigation }) {
       color: '#FFA726',
       description: 'Access educational content with smooth transitions' 
     },
+    { 
+      title: '📱 Mobile Features', 
+      screen: 'MobileFeatures', 
+      color: '#8B5CF6',
+      description: 'Customize app settings and explore mobile-exclusive features'
+    },
   ];
 
   return (
