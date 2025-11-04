@@ -67,6 +67,11 @@ export default function App() {
           component={SelfExamScreen}
           options={{ title: 'Self-Examination Guide' }}
         />
+        <Stack.Screen 
+          name="MobileFeatures" 
+          component={MobileFeaturesScreen}
+          options={{ title: 'Mobile Features' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
