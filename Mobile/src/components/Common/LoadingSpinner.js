@@ -2,7 +2,7 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet } from 'react-native';
 import Colors from '../../styles/colors';
-import GlobalStyles from '../../styles/globalStyles';
+import GlobalStyles from '../../styles/GlobalStyles';
 
 const LoadingSpinner = ({ 
   size = 'large', 
