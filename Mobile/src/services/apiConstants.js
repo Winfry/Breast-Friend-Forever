@@ -1,13 +1,13 @@
 // Exact API configuration matching your FastAPI backend
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.100.5:8000', // Your computer's IP from mobile-test
+  BASE_URL: 'http://192.168.1.118:8000', // Your computer's current IP address
   ENDPOINTS: {
-    // Exact endpoints from your FastAPI app
-    CHAT: '/api/v1/chat/',
+    // Exact endpoints matching backend routes
+    CHAT: '/api/v1/chat/message',
     HOSPITALS: '/api/v1/hospitals/',
     RESOURCES: '/api/v1/resources/',
     ENCOURAGEMENT: '/api/v1/encouragement/',
-    SELF_EXAM: '/api/v1/self_exam/',
+    SELF_EXAM: '/api/v1/self_exam/steps',
     MOBILE: '/api/v1/mobile/',
     HEALTH: '/health',
     MOBILE_TEST: '/api/v1/mobile-test'
