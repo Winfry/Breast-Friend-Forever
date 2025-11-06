@@ -2,7 +2,7 @@
 const ENV = {
   development: {
     // Replace 192.168.1.100 with your actual computer IP
-    API_BASE_URL: 'http://192.168.100.5:8000', // Your computer's IP
+    API_BASE_URL: 'http://192.168.1.118:8000', // Your computer's IP
   },
   production: {
     API_BASE_URL: 'https://your-production-backend.com',
