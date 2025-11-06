@@ -3,6 +3,8 @@ import time
 from fastapi import Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import uvicorn
+from app.main import app
 
 # Import all endpoint routers
 from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile 
