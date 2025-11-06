@@ -120,7 +120,7 @@ const defaultResources = [
     title: 'Self-Examination Guide',
     description: 'Step-by-step guide for breast self-examination',
     type: 'Instruction Guide',
-    url: 'http://192.168.100.5:8000/static/pdfs/self_exam_guide.pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/self_exam_guide.pdf'
   },
   {
     title: 'Risk Factors Overview',
