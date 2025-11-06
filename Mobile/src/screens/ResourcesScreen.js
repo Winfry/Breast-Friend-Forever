@@ -102,7 +102,7 @@ const defaultResources = [
     title: 'Breast Cancer Risk and Prevention',
     description: 'American Cancer Society guide on risk factors and prevention strategies',
     type: 'PDF Guide',
-    url: 'http://192.168.100.5:8000/static/pdfs/American Cancer Society Breast Cancer Risk and Prevention.pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/American Cancer Society Breast Cancer Risk and Prevention.pdf'
   },
   {
     title: 'Diet and Breast Cancer',
