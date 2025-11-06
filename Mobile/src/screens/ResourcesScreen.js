@@ -108,7 +108,7 @@ const defaultResources = [
     title: 'Diet and Breast Cancer',
     description: 'Research on the relationship between diet and breast cancer risk',
     type: 'Research Paper',
-    url: 'http://192.168.100.5:8000/static/pdfs/bcc98-diet-and-breast-cancer-web (1).pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/bcc98-diet-and-breast-cancer-web (1).pdf'
   },
   {
     title: 'Early Detection Summary',
