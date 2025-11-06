@@ -21,7 +21,7 @@ export const checkBackendHealth = async () => {
 };
 
 // Chat - matches your FastAPI chatbot endpoint
-export const sendChatMessage = async (message) => {
+export const sendChatMessageAxios = async (message) => {
   try {
     const response = await api.post(API_CONFIG.ENDPOINTS.CHAT, { 
       message: message 
@@ -87,5 +87,39 @@ export const getMobileFeatures = async () => {
     throw error;
   }
 };
+
+// Enhanced API service with better error handling
+export const sendChatMessage = async (message) => {
+  try {
+    console.log('📱 Sending chat message:', message);
+    
+    const response = await fetch(`${API_CONFIG.BASE_URL}/chat/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+        message: message,
+        conversation_history: []
+      }),
+    });
+
+    console.log('📡 Response status:', response.status);
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('✅ Chat response received:', data);
+    
+    return data;
+  } catch (error) {
+    console.error('❌ Chat API error:', error);
+    throw error;
+  }
+};
+
 
 export default api;
