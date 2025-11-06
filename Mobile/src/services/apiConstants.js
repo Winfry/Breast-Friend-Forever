@@ -1,22 +1,32 @@
-// Exact API configuration matching your FastAPI backend
+// src/services/apiConstants.js - Updated with correct endpoints
 export const API_CONFIG = {
-  BASE_URL: 'http://192.168.1.118:8000', // Your computer's current IP address
+  // Use your actual backend IP address - IMPORTANT!
+  // BASE_URL: 'http://192.168.100.5:8000', // Replace with your computer's IP
+  BASE_URL: 'http://localhost:8000', // For development
+  // BASE_URL: 'https://your-backend-domain.com', // For production
+  
   ENDPOINTS: {
-    // Exact endpoints matching backend routes
-    CHAT: '/api/v1/chat/message',
+    CHAT: '/api/v1/chat/',
     HOSPITALS: '/api/v1/hospitals/',
     RESOURCES: '/api/v1/resources/',
     ENCOURAGEMENT: '/api/v1/encouragement/',
-    SELF_EXAM: '/api/v1/self_exam/steps',
-    MOBILE: '/api/v1/mobile/',
+    SELF_EXAM: '/api/v1/self_exam/',
     HEALTH: '/health',
     MOBILE_TEST: '/api/v1/mobile-test'
   },
-  // Colors from your Streamlit app
+  
   COLORS: {
-    PRIMARY: '#e91e63',    // Your pink from Streamlit
-    SECONDARY: '#f8bbd0',  // Light pink
-    BACKGROUND: '#f5f5f5', // Light gray
-    CARD_BACKGROUND: '#FCE4EC' // Light pink card background
+    PRIMARY: '#E91E63',
+    SECONDARY: '#9C27B0',
+    SUCCESS: '#4CAF50',
+    WARNING: '#FF9800',
+    ERROR: '#F44336',
+    BACKGROUND: '#F8F9FA'
+  },
+  
+  TIMEOUTS: {
+    DEFAULT: 10000,
+    CHAT: 15000,
+    UPLOAD: 30000
   }
 };
