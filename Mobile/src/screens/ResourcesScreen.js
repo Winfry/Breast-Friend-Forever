@@ -126,7 +126,7 @@ const defaultResources = [
     title: 'Risk Factors Overview',
     description: 'Detailed information about breast cancer risk factors',
     type: 'Educational Material',
-    url: 'http://192.168.100.5:8000/static/pdfs/Risk factors.pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/Risk factors.pdf'
   },
   {
     title: 'Facts and Myths',
