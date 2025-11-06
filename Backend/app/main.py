@@ -90,7 +90,7 @@ async def mobile_test():
     return {
         "message": "🎉 Mobile connection successful!",
         "timestamp": time.time(),
-        "your_ip": "192.168.100.5",
+        "your_ip": "192.168.1.118",
         "endpoints": {
             "chat": "/api/v1/chat/",
             "hospitals": "/api/v1/hospitals/", 
