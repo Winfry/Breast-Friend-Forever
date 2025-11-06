@@ -20,10 +20,18 @@ app = FastAPI(
 # CORS Middleware - Allow frontends to connect
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # In production: specific domains only
+    allow_origins=[
+        "http://localhost:8000",
+        "http://127.0.0.1:8000", 
+        "http://192.168.1.118:8000",  # Your computer's IP
+        "http://localhost:8081",
+        "exp://192.168.1.118:8081",   # Your Expo URL
+        "http://192.168.1.118:8081",
+        "*"  # For development
+    ],
     allow_credentials=True,
-    allow_methods=["*"],  # GET, POST, PUT, DELETE, etc.
-    allow_headers=["*"],  # All headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 #  Mount static files for PDF downloads
