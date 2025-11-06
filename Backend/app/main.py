@@ -73,7 +73,7 @@ async def log_requests(request: Request, call_next):
     start_time = time.time()
     
     # Log the incoming request
-    print(f"📱 [{time.strftime('%H:%M:%S')}] {request.method} {request.url}")
+    print(f"[REQ] [{time.strftime('%H:%M:%S')}] {request.method} {request.url}")
     print(f"   Origin: {request.headers.get('origin', 'No origin')}")
     print(f"   User-Agent: {request.headers.get('user-agent', 'No agent')}")
     

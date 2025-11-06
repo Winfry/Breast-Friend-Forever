@@ -284,27 +284,24 @@ export default function ChatScreen() {
         </View>
 
         {/* Messages List */}
-        <View style={[styles.messagesContainer, { marginBottom: keyboardHeight > 0 ? 80 : 0 }]}>
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={renderMessage}
-            keyExtractor={item => item.id.toString()}
-            style={styles.messagesList}
-            contentContainerStyle={styles.messagesContent}
-            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-            onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-            ListHeaderComponent={messages.length <= 2 ? renderQuickQuestions : null}
-            ListFooterComponent={isTyping ? renderTypingIndicator : null}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          />
-        </View>
-        
-        {/* Input Container - FIXED POSITION */}
-        <KeyboardAvoidingView 
+        <FlatList
+          ref={flatListRef}
+          data={messages}
+          renderItem={renderMessage}
+          keyExtractor={item => item.id.toString()}
+          style={styles.messagesList}
+          contentContainerStyle={styles.messagesContent}
+          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+          ListHeaderComponent={messages.length <= 2 ? renderQuickQuestions : null}
+          ListFooterComponent={isTyping ? renderTypingIndicator : null}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        />
+
+        {/* Input Container - FIXED AT BOTTOM */}
+        <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={[styles.inputContainer, { bottom: keyboardHeight > 0 ? keyboardHeight - 35 : 0 }]}
           keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
         >
           <View style={styles.inputWrapper}>
@@ -390,16 +387,14 @@ const styles = StyleSheet.create({
   infoButton: {
     padding: 4,
   },
-  messagesContainer: {
-    flex: 1,
-  },
   messagesList: {
     flex: 1,
+    backgroundColor: '#F8F9FA',
   },
   messagesContent: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    paddingBottom: 20,
+    paddingTop: 10,
+    paddingBottom: 100,
   },
   messageRow: {
     flexDirection: 'row',
@@ -548,14 +543,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 3,
   },
   inputContainer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
     backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#E8E8E8',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    paddingBottom: Platform.OS === 'ios' ? 24 : 12,
   },
   inputWrapper: {
     flexDirection: 'row',

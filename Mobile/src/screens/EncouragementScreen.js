@@ -229,7 +229,7 @@ function EncouragementScreen() {
 
   const renderQuoteCard = (quote, index) => (
     <View key={index} style={styles.quoteCard}>
-      <Ionicons name="quote" size={24} color={API_CONFIG.COLORS.PRIMARY} />
+      <Ionicons name="chatbox-ellipses" size={24} color={API_CONFIG.COLORS.PRIMARY} />
       <Text style={styles.quoteText}>"{quote.text}"</Text>
       <View style={styles.quoteFooter}>
         <Text style={styles.quoteAuthor}>— {quote.author}</Text>
@@ -350,9 +350,11 @@ function EncouragementScreen() {
 
           {/* Top Stories */}
           <Text style={styles.sectionTitle}>🌟 Today's Highlights</Text>
-          {messages.filter(msg => msg.type === 'story' || msg.type === 'milestone').map((item, index) => 
-            renderMessageItem({ item, index })
-          )}
+          {messages.filter(msg => msg.type === 'story' || msg.type === 'milestone').map((item, index) => (
+            <View key={item.id || index}>
+              {renderMessageItem({ item, index })}
+            </View>
+          ))}
         </ScrollView>
       )}
 

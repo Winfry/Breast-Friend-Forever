@@ -27,19 +27,19 @@ class PDFSearcher:
     def load_all_pdfs(self):
         """Load and index all PDFs in the PDF directory"""
         content = []
-        print(f"🔍 Looking for PDFs in: {os.path.abspath(self.pdf_directory)}")
-        
+        print(f"[SEARCH] Looking for PDFs in: {os.path.abspath(self.pdf_directory)}")
+
         if not os.path.exists(self.pdf_directory):
-            print(f"❌ PDF directory doesn't exist: {self.pdf_directory}")
+            print(f"[ERROR] PDF directory doesn't exist: {self.pdf_directory}")
             return content
-            
+
         files = os.listdir(self.pdf_directory)
-        print(f"📄 Files found: {files}")
-        
+        print(f"[FILES] Files found: {files}")
+
         for filename in files:
             if filename.endswith(".pdf"):
                 filepath = os.path.join(self.pdf_directory, filename)
-                print(f"📖 Processing PDF: {filename}")
+                print(f"[PDF] Processing PDF: {filename}")
                 text = self.extract_pdf_text(filepath)
                 if text.strip():
                     content.append({
@@ -47,9 +47,9 @@ class PDFSearcher:
                         "content": text,
                         "chunks": self.chunk_text(text)
                     })
-                    print(f"✅ Loaded PDF: {filename} ({len(text)} characters)")
+                    print(f"[OK] Loaded PDF: {filename} ({len(text)} characters)")
                 else:
-                    print(f"❌ Failed to read PDF: {filename}")
+                    print(f"[FAIL] Failed to read PDF: {filename}")
         return content
     
     def extract_pdf_text(self, pdf_path):
@@ -62,9 +62,9 @@ class PDFSearcher:
                 if reader.is_encrypted:
                     try:
                         reader.decrypt("")  # try to decrypt with empty password
-                        print(f"🔓 Decrypted PDF: {os.path.basename(pdf_path)}")
+                        print(f"[DECRYPT] Decrypted PDF: {os.path.basename(pdf_path)}")
                     except Exception as e:
-                        print(f"⚠️ Skipping encrypted PDF (needs password): {pdf_path} — {e}")
+                        print(f"[WARN] Skipping encrypted PDF (needs password): {pdf_path} - {e}")
                         return ""
 
                 text = ""
@@ -73,7 +73,7 @@ class PDFSearcher:
                         page_text = page.extract_text() or ""
                         text += page_text + "\n"
                     except Exception as e:
-                        print(f"⚠️ Could not read a page in {pdf_path}: {e}")
+                        print(f"[WARN] Could not read a page in {pdf_path}: {e}")
                         continue
                 
                 return text.strip()
