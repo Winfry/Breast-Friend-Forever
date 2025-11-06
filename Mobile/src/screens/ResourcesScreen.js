@@ -114,7 +114,7 @@ const defaultResources = [
     title: 'Early Detection Summary',
     description: 'Comprehensive knowledge summary on early detection methods',
     type: 'Medical Summary',
-    url: 'http://192.168.100.5:8000/static/pdfs/KNOWLEDGE-SUMMARY---EARLY-DETECTION.pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/KNOWLEDGE-SUMMARY---EARLY-DETECTION.pdf'
   },
   {
     title: 'Self-Examination Guide',
