@@ -10,7 +10,7 @@ class DataService:
     async def load_hospitals(self, city: str = None, state: str = None) -> List[Dict]:
         """Load hospitals from CSV, optionally filter by city/state"""
         try:
-            df = pd.read_csv("app/data/hospitals.csv")
+            df = pd.read_csv("app/data/hospitals.csv", encoding='latin-1')
             
             # Filter if city/state provided
             if city:
