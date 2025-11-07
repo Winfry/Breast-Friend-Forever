@@ -71,7 +71,7 @@ export default function HospitalsScreen() {
           hours: hospital.hours || hospital.Hours || 'Mon-Fri: 8AM-5PM',
           specialty: hospital.specialty || hospital.Specialty || getRandomSpecialty(),
           insurance: hospital.insurance || ['NHIF', 'Private Pay'],
-          rating: hospital.rating || Math.random() * 2 + 3, // 3-5 stars
+          rating: typeof hospital.rating === 'number' ? hospital.rating : (Math.random() * 2 + 3), // 3-5 stars
           waitTime: hospital.waitTime || Math.floor(Math.random() * 30) + 10, // 10-40 mins
           isOpen: hospital.isOpen !== undefined ? hospital.isOpen : Math.random() > 0.2,
           type: hospital.type || hospital.Type || 'Medical Clinic',
@@ -179,7 +179,7 @@ export default function HospitalsScreen() {
         
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.ratingText}>{item.rating.toFixed(1)}</Text>
+          <Text style={styles.ratingText}>{(item.rating || 4.0).toFixed(1)}</Text>
         </View>
       </View>
 
@@ -324,7 +324,7 @@ export default function HospitalsScreen() {
           <View style={styles.statDivider} />
           <View style={styles.statItem}>
             <Text style={styles.statNumber}>
-              {hospitals.filter(h => h.rating >= 4).length}
+              {hospitals.filter(h => (h.rating || 0) >= 4).length}
             </Text>
             <Text style={styles.statLabel}>Top Rated</Text>
           </View>
