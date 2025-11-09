@@ -263,14 +263,6 @@ export default function HospitalsScreen() {
     </TouchableOpacity>
   );
 
-  const NetworkDebugInfo = () => (
-    <View style={styles.debugContainer}>
-      <Text style={styles.debugText}>
-        API Status: {apiStatus} | Hospitals: {hospitals.length}
-      </Text>
-    </View>
-  );
-
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -319,9 +311,6 @@ export default function HospitalsScreen() {
           </View>
         </View>
       </View>
-
-      {/* Network Debug Info */}
-      <NetworkDebugInfo />
 
       {/* Filter Chips */}
       <ScrollView 
@@ -523,17 +512,6 @@ const styles = StyleSheet.create({
     width: 1,
     backgroundColor: '#E0E0E0',
     marginHorizontal: 8,
-  },
-  debugContainer: {
-    backgroundColor: '#f0f0f0',
-    padding: 8,
-    margin: 16,
-    borderRadius: 8,
-  },
-  debugText: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
   },
   filtersContainer: {
     backgroundColor: 'white',
