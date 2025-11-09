@@ -11,7 +11,8 @@ import {
   Linking,
   ScrollView,
   Animated,
-  RefreshControl
+  RefreshControl,
+  Modal
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getHospitals } from '../services/api';
@@ -19,9 +20,13 @@ import { API_CONFIG } from '../services/apiConstants';
 
 export default function HospitalsScreen() {
   const [hospitals, setHospitals] = useState([]);
+  const [filteredHospitals, setFilteredHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [selectedCounty, setSelectedCounty] = useState('All');
+  const [selectedOwnership, setSelectedOwnership] = useState('All');
+  const [selectedType, setSelectedType] = useState('All');
+  const [showFilters, setShowFilters] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const filters = [
@@ -65,6 +70,7 @@ export default function HospitalsScreen() {
           isOpen: hospital.isOpen !== undefined ? hospital.isOpen : Math.random() > 0.2,
           type: hospital.type || hospital.Type || 'Medical Clinic',
           county: hospital.county || hospital.County || 'Nairobi',
+          owner: hospital.owner || hospital.Owner || 'Private',
           latitude: hospital.latitude || hospital.lat || hospital.Latitude || -1.286389,
           longitude: hospital.longitude || hospital.lon || hospital.Longitude || 36.817223
         };
@@ -75,7 +81,8 @@ export default function HospitalsScreen() {
       
       console.log(`🏥 Loaded ${enrichedData.length} hospitals`);
       setHospitals(enrichedData);
-      
+      setFilteredHospitals(enrichedData);
+
     } catch (error) {
       console.error('🏥 Hospital loading error:', error);
       Alert.alert(
@@ -93,6 +100,60 @@ export default function HospitalsScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     loadHospitals();
+  };
+
+  // Apply filters whenever filter selections change
+  useEffect(() => {
+    applyFilters();
+  }, [selectedCounty, selectedOwnership, selectedType, hospitals]);
+
+  const applyFilters = () => {
+    let filtered = [...hospitals];
+
+    // Filter by county
+    if (selectedCounty !== 'All') {
+      filtered = filtered.filter(h => h.county === selectedCounty);
+    }
+
+    // Filter by ownership type
+    if (selectedOwnership !== 'All') {
+      filtered = filtered.filter(h => {
+        const owner = h.owner.toLowerCase();
+        if (selectedOwnership === 'Government') {
+          return owner.includes('ministry') || owner.includes('government');
+        } else if (selectedOwnership === 'Private') {
+          return owner.includes('private');
+        } else if (selectedOwnership === 'NGO') {
+          return owner.includes('ngo') || owner.includes('non-governmental');
+        }
+        return true;
+      });
+    }
+
+    // Filter by facility type
+    if (selectedType !== 'All') {
+      filtered = filtered.filter(h => h.type === selectedType);
+    }
+
+    setFilteredHospitals(filtered);
+    console.log(`Filtered ${filtered.length} hospitals from ${hospitals.length} total`);
+  };
+
+  const resetFilters = () => {
+    setSelectedCounty('All');
+    setSelectedOwnership('All');
+    setSelectedType('All');
+  };
+
+  // Get unique values for filter options
+  const getUniqueCounties = () => {
+    const counties = [...new Set(hospitals.map(h => h.county))].sort();
+    return ['All', ...counties];
+  };
+
+  const getUniqueTypes = () => {
+    const types = [...new Set(hospitals.map(h => h.type))].sort();
+    return ['All', ...types];
   };
 
   const getRandomSpecialty = () => {
@@ -311,19 +372,58 @@ export default function HospitalsScreen() {
         </View>
       </View>
 
-      {/* Filter Chips */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
-        {filters.map(renderFilterChip)}
-      </ScrollView>
+      {/* Filter Section */}
+      <View style={styles.filterSection}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity
+            style={[styles.filterButton, selectedCounty !== 'All' && styles.filterButtonActive]}
+            onPress={() => setShowFilters(true)}
+          >
+            <Ionicons name="location" size={16} color={selectedCounty !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
+            <Text style={[styles.filterButtonText, selectedCounty !== 'All' && styles.filterButtonTextActive]}>
+              {selectedCounty === 'All' ? 'County' : selectedCounty}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.filterButton, selectedOwnership !== 'All' && styles.filterButtonActive]}
+            onPress={() => setShowFilters(true)}
+          >
+            <Ionicons name="business" size={16} color={selectedOwnership !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
+            <Text style={[styles.filterButtonText, selectedOwnership !== 'All' && styles.filterButtonTextActive]}>
+              {selectedOwnership === 'All' ? 'Ownership' : selectedOwnership}
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.filterButton, selectedType !== 'All' && styles.filterButtonActive]}
+            onPress={() => setShowFilters(true)}
+          >
+            <Ionicons name="medical" size={16} color={selectedType !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
+            <Text style={[styles.filterButtonText, selectedType !== 'All' && styles.filterButtonTextActive]}>
+              {selectedType === 'All' ? 'Type' : selectedType}
+            </Text>
+          </TouchableOpacity>
+
+          {(selectedCounty !== 'All' || selectedOwnership !== 'All' || selectedType !== 'All') && (
+            <TouchableOpacity
+              style={styles.clearFiltersButton}
+              onPress={resetFilters}
+            >
+              <Ionicons name="close-circle" size={16} color="#666" />
+              <Text style={styles.clearFiltersText}>Clear</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
+
+        <Text style={styles.resultsText}>
+          {filteredHospitals.length} results
+        </Text>
+      </View>
 
       {/* Hospital List */}
       <FlatList
-        data={hospitals}
+        data={filteredHospitals}
         renderItem={renderHospitalItem}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
