@@ -697,41 +697,154 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     marginHorizontal: 8,
   },
-  filtersContainer: {
+  filterSection: {
     backgroundColor: 'white',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  filterButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F8F9FA',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+    marginRight: 8,
+    gap: 6,
+  },
+  filterButtonActive: {
+    backgroundColor: API_CONFIG.COLORS.PRIMARY,
+    borderColor: API_CONFIG.COLORS.PRIMARY,
+  },
+  filterButtonText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  filterButtonTextActive: {
+    color: 'white',
+  },
+  clearFiltersButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E8E8E8',
+    gap: 6,
+  },
+  clearFiltersText: {
+    fontSize: 13,
+    color: '#666',
+    fontWeight: '500',
+  },
+  resultsText: {
+    fontSize: 12,
+    color: '#999',
+    fontWeight: '600',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 20,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  filtersContent: {
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  modalScroll: {
+    padding: 20,
+  },
+  filterGroup: {
+    marginBottom: 24,
+  },
+  filterGroupTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 12,
+  },
+  optionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 8,
   },
-  filterChip: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  optionChip: {
     backgroundColor: '#F8F9FA',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E8E8E8',
-    gap: 6,
     marginRight: 8,
+    marginBottom: 8,
   },
-  filterChipActive: {
+  optionChipActive: {
     backgroundColor: API_CONFIG.COLORS.PRIMARY,
     borderColor: API_CONFIG.COLORS.PRIMARY,
   },
-  filterIcon: {
-    fontSize: 14,
-  },
-  filterText: {
+  optionChipText: {
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
   },
-  filterTextActive: {
+  optionChipTextActive: {
+    color: 'white',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    padding: 20,
+    gap: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  resetButton: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  resetButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#666',
+  },
+  applyButton: {
+    flex: 1,
+    backgroundColor: API_CONFIG.COLORS.PRIMARY,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+  },
+  applyButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
     color: 'white',
   },
   centered: {
