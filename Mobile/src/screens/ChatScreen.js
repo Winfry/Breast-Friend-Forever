@@ -300,10 +300,7 @@ export default function ChatScreen() {
         />
 
         {/* Input Container - FIXED AT BOTTOM */}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
-        >
+        <View style={styles.inputContainer}>
           <View style={styles.inputWrapper}>
             <TextInput
               ref={textInputRef}
@@ -314,9 +311,9 @@ export default function ChatScreen() {
               placeholderTextColor="#999"
               multiline
               maxLength={500}
-              onSubmitEditing={handleInputSubmit}
               returnKeyType="send"
               blurOnSubmit={false}
+              editable={!isLoading}
             />
             <TouchableOpacity
               style={[
@@ -327,14 +324,18 @@ export default function ChatScreen() {
               disabled={!inputText.trim() || isLoading}
               activeOpacity={0.7}
             >
-              <Ionicons 
-                name="send" 
-                size={20} 
-                color={(!inputText.trim() || isLoading) ? '#999' : 'white'} 
-              />
+              {isLoading ? (
+                <Ionicons name="hourglass" size={20} color="#999" />
+              ) : (
+                <Ionicons
+                  name="send"
+                  size={20}
+                  color={!inputText.trim() ? '#999' : 'white'}
+                />
+              )}
             </TouchableOpacity>
           </View>
-        </KeyboardAvoidingView>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -394,7 +395,7 @@ const styles = StyleSheet.create({
   messagesContent: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 100,
+    paddingBottom: 20,
   },
   messageRow: {
     flexDirection: 'row',
