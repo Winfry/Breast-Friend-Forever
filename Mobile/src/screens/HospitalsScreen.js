@@ -22,7 +22,6 @@ export default function HospitalsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [apiStatus, setApiStatus] = useState('checking...');
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const filters = [
@@ -34,22 +33,12 @@ export default function HospitalsScreen() {
 
   useEffect(() => {
     loadHospitals();
-    checkAPIStatus();
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 600,
       useNativeDriver: true,
     }).start();
   }, []);
-
-  const checkAPIStatus = async () => {
-    try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/health`);
-      setApiStatus(response.ok ? 'connected' : 'error');
-    } catch (error) {
-      setApiStatus('disconnected');
-    }
-  };
 
   const loadHospitals = async () => {
     try {
