@@ -93,7 +93,6 @@ export default function HospitalsScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     loadHospitals();
-    checkAPIStatus();
   };
 
   const getRandomSpecialty = () => {
