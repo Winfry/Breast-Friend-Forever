@@ -29,13 +29,6 @@ export default function HospitalsScreen() {
   const [showFilters, setShowFilters] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
-  const filters = [
-    { id: 'all', label: 'All Facilities', icon: '🏥' },
-    { id: 'screening', label: 'Screening', icon: '🔍' },
-    { id: 'support', label: 'Support', icon: '💖' },
-    { id: 'emergency', label: '24/7', icon: '🚨' }
-  ];
-
   useEffect(() => {
     loadHospitals();
     Animated.timing(fadeAnim, {
@@ -304,25 +297,6 @@ export default function HospitalsScreen() {
     </Animated.View>
   );
 
-  const renderFilterChip = (filter) => (
-    <TouchableOpacity
-      key={filter.id}
-      style={[
-        styles.filterChip,
-        selectedFilter === filter.id && styles.filterChipActive
-      ]}
-      onPress={() => setSelectedFilter(filter.id)}
-    >
-      <Text style={styles.filterIcon}>{filter.icon}</Text>
-      <Text style={[
-        styles.filterText,
-        selectedFilter === filter.id && styles.filterTextActive
-      ]}>
-        {filter.label}
-      </Text>
-    </TouchableOpacity>
-  );
-
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -445,6 +419,117 @@ export default function HospitalsScreen() {
           </View>
         }
       />
+
+      {/* Filter Modal */}
+      <Modal
+        visible={showFilters}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowFilters(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Hospitals</Text>
+              <TouchableOpacity onPress={() => setShowFilters(false)}>
+                <Ionicons name="close" size={24} color="#333" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalScroll}>
+              {/* County Filter */}
+              <View style={styles.filterGroup}>
+                <Text style={styles.filterGroupTitle}>County</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {getUniqueCounties().map(county => (
+                    <TouchableOpacity
+                      key={county}
+                      style={[
+                        styles.optionChip,
+                        selectedCounty === county && styles.optionChipActive
+                      ]}
+                      onPress={() => setSelectedCounty(county)}
+                    >
+                      <Text style={[
+                        styles.optionChipText,
+                        selectedCounty === county && styles.optionChipTextActive
+                      ]}>
+                        {county}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+
+              {/* Ownership Filter */}
+              <View style={styles.filterGroup}>
+                <Text style={styles.filterGroupTitle}>Ownership</Text>
+                <View style={styles.optionGrid}>
+                  {['All', 'Government', 'Private', 'NGO'].map(ownership => (
+                    <TouchableOpacity
+                      key={ownership}
+                      style={[
+                        styles.optionChip,
+                        selectedOwnership === ownership && styles.optionChipActive
+                      ]}
+                      onPress={() => setSelectedOwnership(ownership)}
+                    >
+                      <Text style={[
+                        styles.optionChipText,
+                        selectedOwnership === ownership && styles.optionChipTextActive
+                      ]}>
+                        {ownership}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+
+              {/* Type Filter */}
+              <View style={styles.filterGroup}>
+                <Text style={styles.filterGroupTitle}>Facility Type</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {getUniqueTypes().map(type => (
+                    <TouchableOpacity
+                      key={type}
+                      style={[
+                        styles.optionChip,
+                        selectedType === type && styles.optionChipActive
+                      ]}
+                      onPress={() => setSelectedType(type)}
+                    >
+                      <Text style={[
+                        styles.optionChipText,
+                        selectedType === type && styles.optionChipTextActive
+                      ]}>
+                        {type}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity
+                style={styles.resetButton}
+                onPress={() => {
+                  resetFilters();
+                  setShowFilters(false);
+                }}
+              >
+                <Text style={styles.resetButtonText}>Reset All</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.applyButton}
+                onPress={() => setShowFilters(false)}
+              >
+                <Text style={styles.applyButtonText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
