@@ -261,83 +261,89 @@ export default function ChatScreen() {
   );
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View style={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <View style={styles.botInfo}>
-              <View style={[styles.avatar, styles.headerAvatar]}>
-                <Ionicons name="heart" size={20} color="white" />
-              </View>
-              <View>
-                <Text style={styles.botName}>Breast Health Companion</Text>
-                <Text style={styles.botStatus}>
-                  {isTyping ? 'Typing...' : 'Online • Ready to help'}
-                </Text>
-              </View>
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 0}
+    >
+      {/* Header */}
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <View style={styles.botInfo}>
+            <View style={[styles.avatar, styles.headerAvatar]}>
+              <Ionicons name="heart" size={20} color="white" />
             </View>
-            <TouchableOpacity style={styles.infoButton}>
-              <Ionicons name="information-circle" size={24} color={API_CONFIG.COLORS.PRIMARY} />
-            </TouchableOpacity>
+            <View>
+              <Text style={styles.botName}>Breast Health Companion</Text>
+              <Text style={styles.botStatus}>
+                {isTyping ? 'Typing...' : 'Online • Ready to help'}
+              </Text>
+            </View>
           </View>
-        </View>
-
-        {/* Messages List */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={item => item.id.toString()}
-          style={styles.messagesList}
-          contentContainerStyle={styles.messagesContent}
-          onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
-          ListHeaderComponent={messages.length <= 2 ? renderQuickQuestions : null}
-          ListFooterComponent={isTyping ? renderTypingIndicator : null}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        />
-
-        {/* Input Container - FIXED AT BOTTOM */}
-        <View style={styles.inputContainer}>
-          <View style={styles.inputWrapper}>
-            <TextInput
-              ref={textInputRef}
-              style={styles.textInput}
-              value={inputText}
-              onChangeText={setInputText}
-              placeholder="Ask about breast health, symptoms, prevention..."
-              placeholderTextColor="#999"
-              multiline
-              maxLength={500}
-              returnKeyType="send"
-              blurOnSubmit={false}
-              editable={!isLoading}
-            />
-            <TouchableOpacity
-              style={[
-                styles.sendButton,
-                (!inputText.trim() || isLoading) && styles.sendButtonDisabled
-              ]}
-              onPress={handleSendMessage}
-              disabled={!inputText.trim() || isLoading}
-              activeOpacity={0.7}
-            >
-              {isLoading ? (
-                <Ionicons name="hourglass" size={20} color="#999" />
-              ) : (
-                <Ionicons
-                  name="send"
-                  size={20}
-                  color={!inputText.trim() ? '#999' : 'white'}
-                />
-              )}
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity style={styles.infoButton}>
+            <Ionicons name="information-circle" size={24} color={API_CONFIG.COLORS.PRIMARY} />
+          </TouchableOpacity>
         </View>
       </View>
-    </TouchableWithoutFeedback>
+
+      {/* Messages List */}
+      <FlatList
+        ref={flatListRef}
+        data={messages}
+        renderItem={renderMessage}
+        keyExtractor={item => item.id.toString()}
+        style={styles.messagesList}
+        contentContainerStyle={styles.messagesContent}
+        onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        onLayout={() => flatListRef.current?.scrollToEnd({ animated: true })}
+        ListHeaderComponent={messages.length <= 2 ? renderQuickQuestions : null}
+        ListFooterComponent={isTyping ? renderTypingIndicator : null}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="interactive"
+      />
+
+      {/* Input Container - ALWAYS VISIBLE AT BOTTOM */}
+      <View style={styles.inputContainer}>
+        <View style={styles.inputWrapper}>
+          <TextInput
+            ref={textInputRef}
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Type your question here..."
+            placeholderTextColor="#999"
+            multiline={false}
+            maxLength={500}
+            returnKeyType="send"
+            onSubmitEditing={handleSendMessage}
+            blurOnSubmit={false}
+            editable={!isLoading}
+            autoCorrect={true}
+            autoCapitalize="sentences"
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!inputText.trim() || isLoading) && styles.sendButtonDisabled
+            ]}
+            onPress={handleSendMessage}
+            disabled={!inputText.trim() || isLoading}
+            activeOpacity={0.7}
+          >
+            {isLoading ? (
+              <Ionicons name="hourglass" size={20} color="#999" />
+            ) : (
+              <Ionicons
+                name="send"
+                size={20}
+                color={!inputText.trim() ? '#999' : 'white'}
+              />
+            )}
+          </TouchableOpacity>
+        </View>
+      </View>
+    </KeyboardAvoidingView>
   );
 }
 
