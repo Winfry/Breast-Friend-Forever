@@ -4,7 +4,7 @@ import axios from 'axios';
 // Configuration - UPDATE THESE WITH YOUR ACTUAL BACKEND URLS
 const API_CONFIG = {
   // For development - replace with your actual backend URL
-  baseURL: 'http://192.168.2.80:8000', // Your computer's IP for mobile testing
+  baseURL: 'http://192.168.1.126:8000', // Your computer's IP for mobile testing
   timeout: 30000, // 30 seconds timeout for AI responses
   headers: {
     'Content-Type': 'application/json',

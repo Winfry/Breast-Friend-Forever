@@ -1,7 +1,7 @@
 // src/services/apiConstants.js - Updated with correct endpoints
 export const API_CONFIG = {
   // ⚠️ IMPORTANT: Replace with your actual backend IP address
-  BASE_URL: 'http://192.168.2.80:8000', // Your computer's IP
+  BASE_URL: 'http://192.168.1.126:8000', // Your computer's IP
   // BASE_URL: 'http://localhost:8000', // For development (web only)
   // BASE_URL: 'https://your-production-domain.com', // For production
   
