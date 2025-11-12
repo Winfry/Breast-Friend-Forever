@@ -11,8 +11,7 @@ import {
   Linking,
   ScrollView,
   Animated,
-  RefreshControl,
-  Modal
+  RefreshControl
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { getHospitals } from '../services/api';
@@ -20,23 +19,37 @@ import { API_CONFIG } from '../services/apiConstants';
 
 export default function HospitalsScreen() {
   const [hospitals, setHospitals] = useState([]);
-  const [filteredHospitals, setFilteredHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
-  const [selectedCounty, setSelectedCounty] = useState('All');
-  const [selectedOwnership, setSelectedOwnership] = useState('All');
-  const [selectedType, setSelectedType] = useState('All');
-  const [showFilters, setShowFilters] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState('all');
+  const [apiStatus, setApiStatus] = useState('checking...');
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  const filters = [
+    { id: 'all', label: 'All Facilities', icon: '🏥' },
+    { id: 'screening', label: 'Screening', icon: '🔍' },
+    { id: 'support', label: 'Support', icon: '💖' },
+    { id: 'emergency', label: '24/7', icon: '🚨' }
+  ];
 
   useEffect(() => {
     loadHospitals();
+    checkAPIStatus();
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 600,
       useNativeDriver: true,
     }).start();
   }, []);
+
+  const checkAPIStatus = async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/health`);
+      setApiStatus(response.ok ? 'connected' : 'error');
+    } catch (error) {
+      setApiStatus('disconnected');
+    }
+  };
 
   const loadHospitals = async () => {
     try {
@@ -58,12 +71,11 @@ export default function HospitalsScreen() {
           hours: hospital.hours || hospital.Hours || 'Mon-Fri: 8AM-5PM',
           specialty: hospital.specialty || hospital.Specialty || getRandomSpecialty(),
           insurance: hospital.insurance || ['NHIF', 'Private Pay'],
-          rating: typeof hospital.rating === 'number' ? hospital.rating : (Math.random() * 2 + 3), // 3-5 stars
+          rating: hospital.rating || Math.random() * 2 + 3, // 3-5 stars
           waitTime: hospital.waitTime || Math.floor(Math.random() * 30) + 10, // 10-40 mins
           isOpen: hospital.isOpen !== undefined ? hospital.isOpen : Math.random() > 0.2,
           type: hospital.type || hospital.Type || 'Medical Clinic',
           county: hospital.county || hospital.County || 'Nairobi',
-          owner: hospital.owner || hospital.Owner || 'Private',
           latitude: hospital.latitude || hospital.lat || hospital.Latitude || -1.286389,
           longitude: hospital.longitude || hospital.lon || hospital.Longitude || 36.817223
         };
@@ -74,8 +86,7 @@ export default function HospitalsScreen() {
       
       console.log(`🏥 Loaded ${enrichedData.length} hospitals`);
       setHospitals(enrichedData);
-      setFilteredHospitals(enrichedData);
-
+      
     } catch (error) {
       console.error('🏥 Hospital loading error:', error);
       Alert.alert(
@@ -93,60 +104,7 @@ export default function HospitalsScreen() {
   const onRefresh = () => {
     setRefreshing(true);
     loadHospitals();
-  };
-
-  // Apply filters whenever filter selections change
-  useEffect(() => {
-    applyFilters();
-  }, [selectedCounty, selectedOwnership, selectedType, hospitals]);
-
-  const applyFilters = () => {
-    let filtered = [...hospitals];
-
-    // Filter by county
-    if (selectedCounty !== 'All') {
-      filtered = filtered.filter(h => h.county === selectedCounty);
-    }
-
-    // Filter by ownership type
-    if (selectedOwnership !== 'All') {
-      filtered = filtered.filter(h => {
-        const owner = h.owner.toLowerCase();
-        if (selectedOwnership === 'Government') {
-          return owner.includes('ministry') || owner.includes('government');
-        } else if (selectedOwnership === 'Private') {
-          return owner.includes('private');
-        } else if (selectedOwnership === 'NGO') {
-          return owner.includes('ngo') || owner.includes('non-governmental');
-        }
-        return true;
-      });
-    }
-
-    // Filter by facility type
-    if (selectedType !== 'All') {
-      filtered = filtered.filter(h => h.type === selectedType);
-    }
-
-    setFilteredHospitals(filtered);
-    console.log(`Filtered ${filtered.length} hospitals from ${hospitals.length} total`);
-  };
-
-  const resetFilters = () => {
-    setSelectedCounty('All');
-    setSelectedOwnership('All');
-    setSelectedType('All');
-  };
-
-  // Get unique values for filter options
-  const getUniqueCounties = () => {
-    const counties = [...new Set(hospitals.map(h => h.county))].sort();
-    return ['All', ...counties];
-  };
-
-  const getUniqueTypes = () => {
-    const types = [...new Set(hospitals.map(h => h.type))].sort();
-    return ['All', ...types];
+    checkAPIStatus();
   };
 
   const getRandomSpecialty = () => {
@@ -297,6 +255,33 @@ export default function HospitalsScreen() {
     </Animated.View>
   );
 
+  const renderFilterChip = (filter) => (
+    <TouchableOpacity
+      key={filter.id}
+      style={[
+        styles.filterChip,
+        selectedFilter === filter.id && styles.filterChipActive
+      ]}
+      onPress={() => setSelectedFilter(filter.id)}
+    >
+      <Text style={styles.filterIcon}>{filter.icon}</Text>
+      <Text style={[
+        styles.filterText,
+        selectedFilter === filter.id && styles.filterTextActive
+      ]}>
+        {filter.label}
+      </Text>
+    </TouchableOpacity>
+  );
+
+  const NetworkDebugInfo = () => (
+    <View style={styles.debugContainer}>
+      <Text style={styles.debugText}>
+        API Status: {apiStatus} | Hospitals: {hospitals.length}
+      </Text>
+    </View>
+  );
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -346,58 +331,22 @@ export default function HospitalsScreen() {
         </View>
       </View>
 
-      {/* Filter Section */}
-      <View style={styles.filterSection}>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-          <TouchableOpacity
-            style={[styles.filterButton, selectedCounty !== 'All' && styles.filterButtonActive]}
-            onPress={() => setShowFilters(true)}
-          >
-            <Ionicons name="location" size={16} color={selectedCounty !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
-            <Text style={[styles.filterButtonText, selectedCounty !== 'All' && styles.filterButtonTextActive]}>
-              {selectedCounty === 'All' ? 'County' : selectedCounty}
-            </Text>
-          </TouchableOpacity>
+      {/* Network Debug Info */}
+      <NetworkDebugInfo />
 
-          <TouchableOpacity
-            style={[styles.filterButton, selectedOwnership !== 'All' && styles.filterButtonActive]}
-            onPress={() => setShowFilters(true)}
-          >
-            <Ionicons name="business" size={16} color={selectedOwnership !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
-            <Text style={[styles.filterButtonText, selectedOwnership !== 'All' && styles.filterButtonTextActive]}>
-              {selectedOwnership === 'All' ? 'Ownership' : selectedOwnership}
-            </Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.filterButton, selectedType !== 'All' && styles.filterButtonActive]}
-            onPress={() => setShowFilters(true)}
-          >
-            <Ionicons name="medical" size={16} color={selectedType !== 'All' ? 'white' : API_CONFIG.COLORS.PRIMARY} />
-            <Text style={[styles.filterButtonText, selectedType !== 'All' && styles.filterButtonTextActive]}>
-              {selectedType === 'All' ? 'Type' : selectedType}
-            </Text>
-          </TouchableOpacity>
-
-          {(selectedCounty !== 'All' || selectedOwnership !== 'All' || selectedType !== 'All') && (
-            <TouchableOpacity
-              style={styles.clearFiltersButton}
-              onPress={resetFilters}
-            >
-              <Ionicons name="close-circle" size={16} color="#666" />
-              <Text style={styles.clearFiltersText}>Clear</Text>
-            </TouchableOpacity>
-          )}
-        </ScrollView>
-
-        <Text style={styles.resultsText}>
-          {filteredHospitals.length} results
-        </Text>
-      </View>
+      {/* Filter Chips */}
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        style={styles.filtersContainer}
+        contentContainerStyle={styles.filtersContent}
+      >
+        {filters.map(renderFilterChip)}
+      </ScrollView>
 
       {/* Hospital List */}
       <FlatList
-        data={filteredHospitals}
+        data={hospitals}
         renderItem={renderHospitalItem}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
@@ -419,117 +368,6 @@ export default function HospitalsScreen() {
           </View>
         }
       />
-
-      {/* Filter Modal */}
-      <Modal
-        visible={showFilters}
-        animationType="slide"
-        transparent={true}
-        onRequestClose={() => setShowFilters(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Filter Hospitals</Text>
-              <TouchableOpacity onPress={() => setShowFilters(false)}>
-                <Ionicons name="close" size={24} color="#333" />
-              </TouchableOpacity>
-            </View>
-
-            <ScrollView style={styles.modalScroll}>
-              {/* County Filter */}
-              <View style={styles.filterGroup}>
-                <Text style={styles.filterGroupTitle}>County</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {getUniqueCounties().map(county => (
-                    <TouchableOpacity
-                      key={county}
-                      style={[
-                        styles.optionChip,
-                        selectedCounty === county && styles.optionChipActive
-                      ]}
-                      onPress={() => setSelectedCounty(county)}
-                    >
-                      <Text style={[
-                        styles.optionChipText,
-                        selectedCounty === county && styles.optionChipTextActive
-                      ]}>
-                        {county}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-
-              {/* Ownership Filter */}
-              <View style={styles.filterGroup}>
-                <Text style={styles.filterGroupTitle}>Ownership</Text>
-                <View style={styles.optionGrid}>
-                  {['All', 'Government', 'Private', 'NGO'].map(ownership => (
-                    <TouchableOpacity
-                      key={ownership}
-                      style={[
-                        styles.optionChip,
-                        selectedOwnership === ownership && styles.optionChipActive
-                      ]}
-                      onPress={() => setSelectedOwnership(ownership)}
-                    >
-                      <Text style={[
-                        styles.optionChipText,
-                        selectedOwnership === ownership && styles.optionChipTextActive
-                      ]}>
-                        {ownership}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Type Filter */}
-              <View style={styles.filterGroup}>
-                <Text style={styles.filterGroupTitle}>Facility Type</Text>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                  {getUniqueTypes().map(type => (
-                    <TouchableOpacity
-                      key={type}
-                      style={[
-                        styles.optionChip,
-                        selectedType === type && styles.optionChipActive
-                      ]}
-                      onPress={() => setSelectedType(type)}
-                    >
-                      <Text style={[
-                        styles.optionChipText,
-                        selectedType === type && styles.optionChipTextActive
-                      ]}>
-                        {type}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
-              </View>
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity
-                style={styles.resetButton}
-                onPress={() => {
-                  resetFilters();
-                  setShowFilters(false);
-                }}
-              >
-                <Text style={styles.resetButtonText}>Reset All</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.applyButton}
-                onPress={() => setShowFilters(false)}
-              >
-                <Text style={styles.applyButtonText}>Apply Filters</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -697,154 +535,52 @@ const styles = StyleSheet.create({
     backgroundColor: '#E0E0E0',
     marginHorizontal: 8,
   },
-  filterSection: {
-    backgroundColor: 'white',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F0F0F0',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+  debugContainer: {
+    backgroundColor: '#f0f0f0',
+    padding: 8,
+    margin: 16,
+    borderRadius: 8,
   },
-  filterButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F8F9FA',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    marginRight: 8,
-    gap: 6,
-  },
-  filterButtonActive: {
-    backgroundColor: API_CONFIG.COLORS.PRIMARY,
-    borderColor: API_CONFIG.COLORS.PRIMARY,
-  },
-  filterButtonText: {
-    fontSize: 13,
-    color: '#666',
-    fontWeight: '500',
-  },
-  filterButtonTextActive: {
-    color: 'white',
-  },
-  clearFiltersButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#E8E8E8',
-    gap: 6,
-  },
-  clearFiltersText: {
-    fontSize: 13,
-    color: '#666',
-    fontWeight: '500',
-  },
-  resultsText: {
+  debugText: {
     fontSize: 12,
-    color: '#999',
-    fontWeight: '600',
+    color: '#666',
+    textAlign: 'center',
   },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
+  filtersContainer: {
     backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingTop: 20,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingBottom: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#F0F0F0',
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  modalScroll: {
-    padding: 20,
-  },
-  filterGroup: {
-    marginBottom: 24,
-  },
-  filterGroupTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
-  },
-  optionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  filtersContent: {
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     gap: 8,
   },
-  optionChip: {
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#F8F9FA',
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#E8E8E8',
+    gap: 6,
     marginRight: 8,
-    marginBottom: 8,
   },
-  optionChipActive: {
+  filterChipActive: {
     backgroundColor: API_CONFIG.COLORS.PRIMARY,
     borderColor: API_CONFIG.COLORS.PRIMARY,
   },
-  optionChipText: {
+  filterIcon: {
+    fontSize: 14,
+  },
+  filterText: {
     fontSize: 14,
     color: '#666',
     fontWeight: '500',
   },
-  optionChipTextActive: {
-    color: 'white',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    padding: 20,
-    gap: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#F0F0F0',
-  },
-  resetButton: {
-    flex: 1,
-    backgroundColor: '#F8F9FA',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  resetButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#666',
-  },
-  applyButton: {
-    flex: 1,
-    backgroundColor: API_CONFIG.COLORS.PRIMARY,
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    fontSize: 16,
-    fontWeight: '600',
+  filterTextActive: {
     color: 'white',
   },
   centered: {
@@ -1042,4 +778,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
-});
+});localStorage

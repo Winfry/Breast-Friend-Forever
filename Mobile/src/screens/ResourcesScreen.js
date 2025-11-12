@@ -132,7 +132,7 @@ const defaultResources = [
     title: 'Facts and Myths',
     description: 'Separating facts from common myths about breast cancer',
     type: 'Informational Guide',
-    url: 'http://192.168.100.5:8000/static/pdfs/Risks,Facts-and-Myths.pdf'
+    url: 'http://192.168.1.118:8000/static/pdfs/Risks,Facts-and-Myths.pdf'
   }
 ];
 
