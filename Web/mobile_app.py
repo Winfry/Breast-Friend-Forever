@@ -1,344 +1,347 @@
-# Mobile-Only Streamlit App - Simplified and Better!
+# Mobile App - BETTER than Web Version!
 import streamlit as st
-import streamlit.components.v1 as components
 import requests
+import folium
+from streamlit_folium import st_folium
 
-# Configure page for mobile
+# Page config
 st.set_page_config(
     page_title="Breast Friend Forever",
     page_icon="💖",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
-# Mobile-First Styles
+# PWA Meta Tags
+st.markdown("""
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#E91E63">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+""", unsafe_allow_html=True)
+
+# Mobile-Optimized Styles with Animations
 st.markdown("""
 <style>
     /* Hide Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
 
-    /* Full width on mobile */
-    .main .block-container {
-        padding-top: 1rem;
-        padding-bottom: 5rem;
-        padding-left: 1rem;
-        padding-right: 1rem;
-        max-width: 100%;
+    /* Animated gradient header */
+    @keyframes gradient {
+        0% {background-position: 0% 50%;}
+        50% {background-position: 100% 50%;}
+        100% {background-position: 0% 50%;}
     }
 
-    /* Mobile-optimized headers */
-    h1 {
-        font-size: 1.8rem !important;
+    .main-title {
+        background: linear-gradient(45deg, #E91E63, #F06292, #EC407A, #E91E63);
+        background-size: 300% 300%;
+        animation: gradient 3s ease infinite;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-size: 2.5rem;
+        font-weight: bold;
         text-align: center;
-        color: #E91E63;
+        margin-bottom: 1rem;
     }
 
-    /* Large touch-friendly buttons */
+    /* Bounce animation */
+    @keyframes bounce {
+        0%, 100% {transform: translateY(0);}
+        50% {transform: translateY(-10px);}
+    }
+
+    .bounce {
+        animation: bounce 2s ease-in-out infinite;
+    }
+
+    /* Pulse animation */
+    @keyframes pulse {
+        0%, 100% {transform: scale(1);}
+        50% {transform: scale(1.05);}
+    }
+
+    .pulse {
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* Card with hover effect */
+    .animated-card {
+        background: linear-gradient(135deg, #FCE4EC 0%, #F8BBD0 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+        transition: all 0.3s ease;
+        border-left: 5px solid #E91E63;
+    }
+
+    .animated-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+    }
+
+    /* Big mobile buttons */
     .stButton button {
         width: 100%;
         height: 60px;
         font-size: 1.2rem;
-        border-radius: 12px;
         font-weight: bold;
-    }
-
-    /* Bottom Navigation Bar */
-    .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: white;
-        border-top: 1px solid #E0E0E0;
-        display: flex;
-        justify-content: space-around;
-        padding: 0.5rem 0;
-        z-index: 999;
-        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    }
-
-    .nav-item {
-        text-align: center;
-        padding: 0.5rem;
-        cursor: pointer;
-        flex: 1;
-        color: #666;
-        text-decoration: none;
-    }
-
-    .nav-item.active {
-        color: #E91E63;
-    }
-
-    .nav-icon {
-        font-size: 1.5rem;
-        display: block;
-    }
-
-    .nav-label {
-        font-size: 0.7rem;
-        margin-top: 0.2rem;
-    }
-
-    /* Card styles */
-    .card {
-        background: white;
         border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
     }
 
-    .card-header {
-        font-size: 1.2rem;
-        font-weight: bold;
-        color: #E91E63;
-        margin-bottom: 1rem;
+    .stButton button:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.3);
     }
 
     /* Chat bubbles */
-    .chat-bubble {
-        padding: 1rem;
-        border-radius: 18px;
-        margin: 0.5rem 0;
-        max-width: 85%;
-    }
-
     .chat-user {
-        background: #E91E63;
+        background: linear-gradient(135deg, #E91E63, #EC407A);
         color: white;
-        margin-left: auto;
-        border-bottom-right-radius: 4px;
+        padding: 1rem 1.5rem;
+        border-radius: 20px 20px 5px 20px;
+        margin: 0.5rem 0;
+        margin-left: 20%;
+        animation: slideInRight 0.5s ease;
     }
 
     .chat-ai {
-        background: #F0F0F0;
+        background: linear-gradient(135deg, #F5F5F5, #EEEEEE);
         color: #333;
-        margin-right: auto;
-        border-bottom-left-radius: 4px;
+        padding: 1rem 1.5rem;
+        border-radius: 20px 20px 20px 5px;
+        margin: 0.5rem 0;
+        margin-right: 20%;
+        animation: slideInLeft 0.5s ease;
     }
 
-    /* Input field */
-    .stTextInput input {
-        border-radius: 25px;
-        padding: 0.8rem 1.2rem;
-        font-size: 1rem;
+    @keyframes slideInRight {
+        from {transform: translateX(100px); opacity: 0;}
+        to {transform: translateX(0); opacity: 1;}
+    }
+
+    @keyframes slideInLeft {
+        from {transform: translateX(-100px); opacity: 0;}
+        to {transform: translateX(0); opacity: 1;}
+    }
+
+    /* Hospital cards */
+    .hospital-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1rem;
+        margin: 0.8rem 0;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        border-left: 4px solid #E91E63;
+        transition: all 0.3s ease;
+    }
+
+    .hospital-card:hover {
+        transform: translateX(5px);
+        box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+    }
+
+    /* Step counter animation */
+    .step-number {
+        display: inline-block;
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, #E91E63, #EC407A);
+        color: white;
+        border-radius: 50%;
+        text-align: center;
+        line-height: 40px;
+        font-weight: bold;
+        margin-right: 1rem;
+        animation: pulse 2s ease-in-out infinite;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Initialize session state
-if 'page' not in st.session_state:
-    st.session_state.page = 'home'
-if 'messages' not in st.session_state:
-    st.session_state.messages = []
-
 # Backend URL
 BACKEND_URL = "http://192.168.100.5:8000"
 
-# === HOME PAGE ===
-def show_home():
-    st.markdown("# Breast Friend Forever 💖")
-    st.markdown("### Your mobile health companion")
+# Sidebar with emoji navigation
+with st.sidebar:
+    st.markdown('<div class="main-title bounce">💖 BFF Health</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown("#### Welcome! 👋")
+    page = st.radio(
+        "Navigate",
+        ["🏠 Home", "💬 AI Chat", "🏥 Hospitals", "💪 Self-Exam", "💕 Support"],
+        label_visibility="collapsed"
+    )
+
+# ===== HOME PAGE =====
+if page == "🏠 Home":
+    st.markdown('<div class="main-title">Breast Friend Forever 💖</div>', unsafe_allow_html=True)
+    st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #666;">Your mobile health companion</p>', unsafe_allow_html=True)
+
+    st.markdown('<div class="animated-card pulse">', unsafe_allow_html=True)
+    st.markdown("### 🎀 Welcome!")
     st.write("Get personalized breast health guidance, find nearby hospitals, and connect with support - all from your phone.")
     st.markdown('</div>', unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("🤖 Chat Assistant", use_container_width=True):
-            st.session_state.page = 'chat'
-            st.rerun()
+        st.button("🤖 Chat Assistant", key="home_chat", use_container_width=True)
+        st.button("💪 Self-Exam", key="home_exam", use_container_width=True)
     with col2:
-        if st.button("🏥 Find Hospitals", use_container_width=True):
-            st.session_state.page = 'hospitals'
-            st.rerun()
+        st.button("🏥 Hospitals", key="home_hosp", use_container_width=True)
+        st.button("💕 Support", key="home_supp", use_container_width=True)
 
-    col3, col4 = st.columns(2)
-    with col3:
-        if st.button("💪 Self-Exam Guide", use_container_width=True):
-            st.session_state.page = 'exam'
-            st.rerun()
-    with col4:
-        if st.button("💕 Support", use_container_width=True):
-            st.session_state.page = 'support'
-            st.rerun()
+# ===== AI CHAT PAGE =====
+elif page == "💬 AI Chat":
+    st.markdown('<div class="main-title">AI Health Assistant 🤖</div>', unsafe_allow_html=True)
 
-# === CHAT PAGE ===
-def show_chat():
-    st.markdown("# AI Chat Assistant 🤖")
+    if 'messages' not in st.session_state:
+        st.session_state.messages = [
+            {"text": "Hello! I'm your breast health assistant. How can I help you today? 💖", "isUser": False}
+        ]
 
-    # Display chat messages
-    chat_container = st.container()
-    with chat_container:
-        for msg in st.session_state.messages:
-            if msg['isUser']:
-                st.markdown(f'<div class="chat-bubble chat-user">{msg["text"]}</div>', unsafe_allow_html=True)
-            else:
-                st.markdown(f'<div class="chat-bubble chat-ai">{msg["text"]}</div>', unsafe_allow_html=True)
+    # Display chat
+    for msg in st.session_state.messages:
+        if msg['isUser']:
+            st.markdown(f'<div class="chat-user">{msg["text"]}</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(f'<div class="chat-ai">{msg["text"]}</div>', unsafe_allow_html=True)
 
-    # Input area
-    user_input = st.text_input("Type your question...", key="chat_input", label_visibility="collapsed")
+    # Input
+    user_input = st.text_input("Your question...", key="chat_input", label_visibility="collapsed", placeholder="Ask me anything about breast health...")
 
-    col1, col2 = st.columns([4, 1])
-    with col2:
-        send_clicked = st.button("Send", use_container_width=True)
-
-    if send_clicked and user_input:
-        # Add user message
+    if st.button("Send 📤", key="send_btn", use_container_width=True) and user_input:
         st.session_state.messages.append({"text": user_input, "isUser": True})
 
-        # Call backend
         try:
             response = requests.post(
                 f"{BACKEND_URL}/api/v1/chat/",
                 json={"message": user_input},
                 timeout=10
             )
-            ai_response = response.json().get("response", "I'm here to help!")
-        except Exception as e:
-            ai_response = "Sorry, I'm having trouble connecting. Please try again."
+            ai_text = response.json().get("response", "I'm here to help!")
+        except:
+            ai_text = "Sorry, I'm having trouble connecting. Please try again."
 
-        # Add AI message
-        st.session_state.messages.append({"text": ai_response, "isUser": False})
+        st.session_state.messages.append({"text": ai_text, "isUser": False})
         st.rerun()
 
-# === HOSPITALS PAGE ===
-def show_hospitals():
-    st.markdown("# Find Hospitals 🏥")
+# ===== HOSPITALS PAGE =====
+elif page == "🏥 Hospitals":
+    st.markdown('<div class="main-title">Find Hospitals 🏥</div>', unsafe_allow_html=True)
+
+    search = st.text_input("🔍 Search hospitals...", key="hospital_search")
 
     with st.spinner("Loading hospitals..."):
         try:
             response = requests.get(f"{BACKEND_URL}/api/v1/hospitals/", timeout=10)
             hospitals = response.json()
 
-            st.success(f"Found {len(hospitals)} hospitals")
+            # Filter
+            if search:
+                hospitals = [h for h in hospitals if search.lower() in str(h).lower()]
+            else:
+                hospitals = hospitals[:50]  # Show first 50
 
-            # Filters
-            search = st.text_input("🔍 Search by name or location", "")
+            st.success(f"✅ Found {len(hospitals)} hospitals")
 
-            # Filter hospitals
-            filtered = [h for h in hospitals if search.lower() in str(h).lower()] if search else hospitals[:20]
+            # Interactive Map
+            if hospitals:
+                st.markdown("### 🗺️ Interactive Map")
+                m = folium.Map(location=[-1.2921, 36.8219], zoom_start=6)
 
-            # Display hospitals
-            for hospital in filtered:
-                st.markdown('<div class="card">', unsafe_allow_html=True)
-                st.markdown(f'<div class="card-header">{hospital.get("name", "Hospital")}</div>', unsafe_allow_html=True)
-                st.write(f"📍 {hospital.get('address', 'N/A')}")
-                st.write(f"📞 {hospital.get('phone', 'N/A')}")
-                if hospital.get('services'):
-                    st.write(f"🏥 {hospital['services']}")
-                st.markdown('</div>', unsafe_allow_html=True)
+                for h in hospitals[:100]:  # First 100 on map
+                    if h.get('latitude') and h.get('longitude'):
+                        folium.Marker(
+                            [h['latitude'], h['longitude']],
+                            popup=f"<b>{h.get('name', 'Hospital')}</b><br>{h.get('address', '')}",
+                            icon=folium.Icon(color='red', icon='plus', prefix='fa')
+                        ).add_to(m)
+
+                st_folium(m, width=700, height=400)
+
+            # Hospital List
+            st.markdown("### 📋 Hospital List")
+            for h in hospitals[:20]:
+                st.markdown(f"""
+                <div class="hospital-card">
+                    <h4 style="color: #E91E63; margin: 0;">{h.get('name', 'Hospital')}</h4>
+                    <p style="margin: 0.5rem 0;">📍 {h.get('address', 'N/A')}</p>
+                    <p style="margin: 0.5rem 0;">📞 {h.get('phone', 'N/A')}</p>
+                    <p style="margin: 0.5rem 0; color: #666;">🏥 {h.get('services', 'General services')}</p>
+                </div>
+                """, unsafe_allow_html=True)
 
         except Exception as e:
-            st.error("Could not load hospitals. Please check your connection.")
+            st.error(f"Could not load hospitals: {str(e)}")
 
-# === SELF EXAM PAGE ===
-def show_exam():
-    st.markdown("# Self-Exam Guide 💪")
+# ===== SELF-EXAM PAGE =====
+elif page == "💪 Self-Exam":
+    st.markdown('<div class="main-title">Self-Exam Guide 💪</div>', unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">How to Perform a Self-Exam</div>', unsafe_allow_html=True)
-
-    steps = [
-        ("Look in the Mirror", "Stand in front of a mirror with your shoulders straight and arms on your hips. Look for changes in size, shape, or color."),
-        ("Raise Your Arms", "Raise your arms above your head and look for the same changes."),
-        ("Check for Fluid", "Look for any fluid coming from one or both nipples."),
-        ("Lie Down and Feel", "Lie down and use your right hand to feel your left breast in a circular motion. Use your left hand for your right breast."),
-        ("Stand or Sit", "Finally, feel your breasts while standing or sitting. Many women find this easiest in the shower.")
-    ]
-
-    for i, (title, desc) in enumerate(steps, 1):
-        st.markdown(f"### Step {i}: {title}")
-        st.write(desc)
-        st.write("")
-
+    st.markdown('<div class="animated-card">', unsafe_allow_html=True)
+    st.markdown("### 📅 Monthly Breast Self-Examination")
+    st.write("Follow these animated steps to perform a thorough self-examination:")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    if st.button("📅 Set Monthly Reminder"):
-        st.success("Reminder set! We'll notify you monthly.")
+    steps = [
+        ("Look in the Mirror", "Stand in front of a mirror with your shoulders straight and arms on your hips. Look for changes in size, shape, or color.", "🪞"),
+        ("Raise Your Arms", "Raise your arms above your head and look for the same changes.", "🙌"),
+        ("Check for Fluid", "Look for any fluid coming from one or both nipples.", "👀"),
+        ("Lie Down and Feel", "Lie down and use your right hand to feel your left breast in a circular motion.", "🛏️"),
+        ("Stand or Sit", "Feel your breasts while standing or sitting. Many find this easiest in the shower.", "🚿")
+    ]
 
-# === SUPPORT PAGE ===
-def show_support():
-    st.markdown("# Support Community 💕")
+    for i, (title, desc, emoji) in enumerate(steps, 1):
+        st.markdown(f"""
+        <div class="animated-card">
+            <h3>
+                <span class="step-number">{i}</span>
+                {emoji} {title}
+            </h3>
+            <p style="font-size: 1.1rem; line-height: 1.6;">{desc}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.markdown('<div class="card-header">You Are Not Alone</div>', unsafe_allow_html=True)
+    if st.button("📅 Set Monthly Reminder", key="reminder_btn", use_container_width=True):
+        st.success("✅ Reminder set! We'll notify you monthly to perform your self-exam.")
+
+# ===== SUPPORT PAGE =====
+elif page == "💕 Support":
+    st.markdown('<div class="main-title">Support Community 💕</div>', unsafe_allow_html=True)
+
+    st.markdown('<div class="animated-card pulse">', unsafe_allow_html=True)
+    st.markdown("### 🤗 You Are Not Alone")
     st.write("Connect with others, share your story, and find encouragement.")
     st.markdown('</div>', unsafe_allow_html=True)
 
-    message = st.text_area("Share an encouraging message...")
-    if st.button("Post Message", use_container_width=True):
-        st.success("Your message has been shared! Thank you for spreading positivity.")
+    message = st.text_area("Share an encouraging message...", key="support_msg")
+    if st.button("Post Message 💌", key="post_btn", use_container_width=True):
+        st.success("✅ Your message has been shared! Thank you for spreading positivity.")
 
-    st.markdown("---")
-    st.markdown("### Recent Messages")
+    st.markdown("### 💬 Recent Messages")
 
     messages = [
-        "You are stronger than you think! 💪",
-        "One day at a time. You've got this! 🌸",
-        "Your courage inspires us all. Keep going! ✨"
+        ("Sarah M.", "You are stronger than you think! 💪", "2 hours ago"),
+        ("Anonymous", "One day at a time. You've got this! 🌸", "5 hours ago"),
+        ("Lisa K.", "Your courage inspires us all. Keep going! ✨", "1 day ago")
     ]
 
-    for msg in messages:
-        st.markdown('<div class="card">', unsafe_allow_html=True)
-        st.write(msg)
-        st.markdown('</div>', unsafe_allow_html=True)
+    for name, msg, time in messages:
+        st.markdown(f"""
+        <div class="animated-card">
+            <p style="font-weight: bold; color: #E91E63; margin: 0;">{name}</p>
+            <p style="font-size: 1.1rem; margin: 0.5rem 0;">{msg}</p>
+            <p style="font-size: 0.8rem; color: #999; margin: 0;">{time}</p>
+        </div>
+        """, unsafe_allow_html=True)
 
-# === BOTTOM NAVIGATION ===
-def show_bottom_nav():
-    components.html(f"""
-    <div class="bottom-nav">
-        <a href="?page=home" class="nav-item {'active' if st.session_state.page == 'home' else ''}">
-            <div class="nav-icon">🏠</div>
-            <div class="nav-label">Home</div>
-        </a>
-        <a href="?page=chat" class="nav-item {'active' if st.session_state.page == 'chat' else ''}">
-            <div class="nav-icon">💬</div>
-            <div class="nav-label">Chat</div>
-        </a>
-        <a href="?page=hospitals" class="nav-item {'active' if st.session_state.page == 'hospitals' else ''}">
-            <div class="nav-icon">🏥</div>
-            <div class="nav-label">Hospitals</div>
-        </a>
-        <a href="?page=support" class="nav-item {'active' if st.session_state.page == 'support' else ''}">
-            <div class="nav-icon">💕</div>
-            <div class="nav-label">Support</div>
-        </a>
-    </div>
-
-    <script>
-    // Handle navigation clicks
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
-            const page = new URL(item.href).searchParams.get('page');
-            window.parent.postMessage({type: 'streamlit:setComponentValue', value: page}, '*');
-        });
-    });
-    </script>
-    """, height=80)
-
-# === MAIN APP ROUTING ===
-query_params = st.query_params
-if 'page' in query_params:
-    st.session_state.page = query_params['page']
-
-# Show current page
-if st.session_state.page == 'home':
-    show_home()
-elif st.session_state.page == 'chat':
-    show_chat()
-elif st.session_state.page == 'hospitals':
-    show_hospitals()
-elif st.session_state.page == 'exam':
-    show_exam()
-elif st.session_state.page == 'support':
-    show_support()
-
-# Always show bottom navigation
-show_bottom_nav()
+# PWA Install prompt at bottom
+st.markdown("---")
+st.markdown("""
+<div style="text-align: center; padding: 1rem; background: linear-gradient(135deg, #E91E63, #EC407A); border-radius: 12px; color: white;">
+    <p style="font-size: 1.1rem; margin: 0;">📱 Install this app on your phone for quick access!</p>
+    <p style="font-size: 0.9rem; margin: 0.5rem 0 0 0;">Tap your browser menu and select "Add to Home Screen"</p>
+</div>
+""", unsafe_allow_html=True)
