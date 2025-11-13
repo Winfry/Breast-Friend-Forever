@@ -4,10 +4,14 @@ import time
 from utils.style_utils import setup_page_config, apply_custom_styles, create_feature_card
 from utils.animations import anim_manager
 from utils.api_client import api_client
+from pwa_install_prompt import show_install_prompt
 
 # Setup page
 setup_page_config()
 apply_custom_styles()
+
+# Show PWA install prompt on mobile
+show_install_prompt()
 
 # Main header with animation
 col1, col2 = st.columns([2, 1])
