@@ -2,9 +2,44 @@
 import streamlit as st
 
 def apply_custom_styles():
-    """Apply enhanced pink theme with animations"""
+    """Apply enhanced pink theme with animations + PWA support"""
     st.markdown("""
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#E91E63">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="BFF Health">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(reg => console.log('✅ Service Worker registered'))
+          .catch(err => console.log('❌ Service Worker failed:', err));
+      });
+    }
+    </script>
+
     <style>
+    /* Mobile-First Responsive Design */
+    @media (max-width: 768px) {
+      .main-header {
+        font-size: 2rem !important;
+      }
+      .stButton button {
+        width: 100% !important;
+        padding: 1rem !important;
+        font-size: 1.1rem !important;
+      }
+      .feature-card {
+        margin-bottom: 1rem !important;
+      }
+    }
+
     /* Enhanced pink theme with animations */
     .main-header {
         font-size: 3rem;
