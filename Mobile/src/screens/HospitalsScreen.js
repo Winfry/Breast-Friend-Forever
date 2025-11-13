@@ -283,38 +283,48 @@ export default function HospitalsScreen() {
   );
 
   // Apply filters to hospitals
-  const filteredHospitals = hospitals.filter(hospital => {
-    if (selectedFilter === 'all') return true;
+  const filteredHospitals = React.useMemo(() => {
+    console.log(`🔍 Filtering hospitals with: ${selectedFilter}`);
+    console.log(`📊 Total hospitals: ${hospitals.length}`);
 
-    if (selectedFilter === 'screening') {
-      // Check if hospital offers screening services
-      const services = hospital.services?.toLowerCase() || '';
-      return services.includes('screening') ||
-             services.includes('mammography') ||
-             services.includes('ultrasound') ||
-             services.includes('biopsy');
+    if (selectedFilter === 'all') {
+      return hospitals;
     }
 
-    if (selectedFilter === 'support') {
-      // Check if hospital offers support services
-      const services = hospital.services?.toLowerCase() || '';
-      const specialty = hospital.specialty?.toLowerCase() || '';
-      return services.includes('support') ||
-             services.includes('counseling') ||
-             specialty.includes('support') ||
-             specialty.includes('women');
-    }
+    const filtered = hospitals.filter(hospital => {
+      if (selectedFilter === 'screening') {
+        // Check if hospital offers screening services
+        const services = hospital.services?.toLowerCase() || '';
+        return services.includes('screening') ||
+               services.includes('mammography') ||
+               services.includes('ultrasound') ||
+               services.includes('biopsy');
+      }
 
-    if (selectedFilter === 'emergency') {
-      // Check if hospital is open 24/7
-      const hours = hospital.hours?.toLowerCase() || '';
-      return hours.includes('24') ||
-             hours.includes('24/7') ||
-             hospital.isOpen === true;
-    }
+      if (selectedFilter === 'support') {
+        // Check if hospital offers support services
+        const services = hospital.services?.toLowerCase() || '';
+        const specialty = hospital.specialty?.toLowerCase() || '';
+        return services.includes('support') ||
+               services.includes('counseling') ||
+               specialty.includes('support') ||
+               specialty.includes('women');
+      }
 
-    return true;
-  });
+      if (selectedFilter === 'emergency') {
+        // Check if hospital is open 24/7
+        const hours = hospital.hours?.toLowerCase() || '';
+        return hours.includes('24') ||
+               hours.includes('24/7') ||
+               hospital.isOpen === true;
+      }
+
+      return false;
+    });
+
+    console.log(`✅ Filtered hospitals: ${filtered.length}`);
+    return filtered;
+  }, [hospitals, selectedFilter]);
 
   if (loading) {
     return (
