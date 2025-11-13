@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Alert 
 } from 'react-native';
-import { checkBackendHealth } from '../services/api';
+import apiService from '../services/api';
 import { API_CONFIG } from '../services/apiConstants';
 
 export default function HomeScreen({ navigation }) {
@@ -18,9 +18,11 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const checkConnection = async () => {
-    const isHealthy = await checkBackendHealth();
-    setBackendConnected(isHealthy);
-    if (!isHealthy) {
+    try {
+      const response = await apiService.healthCheck();
+      setBackendConnected(true);
+    } catch (error) {
+      setBackendConnected(false);
       Alert.alert('Connection Issue', 'Cannot connect to backend server');
     }
   };
