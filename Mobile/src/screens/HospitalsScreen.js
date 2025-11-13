@@ -282,6 +282,40 @@ export default function HospitalsScreen() {
     </View>
   );
 
+  // Apply filters to hospitals
+  const filteredHospitals = hospitals.filter(hospital => {
+    if (selectedFilter === 'all') return true;
+
+    if (selectedFilter === 'screening') {
+      // Check if hospital offers screening services
+      const services = hospital.services?.toLowerCase() || '';
+      return services.includes('screening') ||
+             services.includes('mammography') ||
+             services.includes('ultrasound') ||
+             services.includes('biopsy');
+    }
+
+    if (selectedFilter === 'support') {
+      // Check if hospital offers support services
+      const services = hospital.services?.toLowerCase() || '';
+      const specialty = hospital.specialty?.toLowerCase() || '';
+      return services.includes('support') ||
+             services.includes('counseling') ||
+             specialty.includes('support') ||
+             specialty.includes('women');
+    }
+
+    if (selectedFilter === 'emergency') {
+      // Check if hospital is open 24/7
+      const hours = hospital.hours?.toLowerCase() || '';
+      return hours.includes('24') ||
+             hours.includes('24/7') ||
+             hospital.isOpen === true;
+    }
+
+    return true;
+  });
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -346,7 +380,7 @@ export default function HospitalsScreen() {
 
       {/* Hospital List */}
       <FlatList
-        data={hospitals}
+        data={filteredHospitals}
         renderItem={renderHospitalItem}
         keyExtractor={item => item.id.toString()}
         showsVerticalScrollIndicator={false}
