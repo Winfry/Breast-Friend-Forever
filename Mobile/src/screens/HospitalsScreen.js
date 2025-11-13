@@ -179,7 +179,7 @@ export default function HospitalsScreen() {
         
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={16} color="#FFD700" />
-          <Text style={styles.ratingText}>{(item.rating || 4.0).toFixed(1)}</Text>
+          <Text style={styles.ratingText}>{Number(item.rating || 4.0).toFixed(1)}</Text>
         </View>
       </View>
 
