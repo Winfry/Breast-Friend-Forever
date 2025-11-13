@@ -229,30 +229,30 @@ async def chat_message(request: ChatRequest):
         instant_response = get_instant_response(request.message)
         if instant_response:
             processing_time = time.time() - start_time
-            print(f"⚡ INSTANT response in {processing_time:.3f}s")
+            print(f"[INSTANT] Response in {processing_time:.3f}s")
             return ChatResponse(
                 response=instant_response,
                 source="Pre-loaded Medical Knowledge",
                 confidence="high"
             )
-        
+
         # 2. FAST PATH: Cached PDF search
         pdf_results = cached_search(request.message.lower())
-        
+
         if pdf_results:
             response = build_response_from_pdfs(pdf_results, request.message)
             processing_time = time.time() - start_time
-            print(f"🚀 FAST response in {processing_time:.3f}s")
+            print(f"[FAST] Response in {processing_time:.3f}s")
             return ChatResponse(
                 response=response,
                 source=f"Medical Documents: {', '.join(set(r['source'] for r in pdf_results))}",
                 confidence="high"
             )
-        
+
         # 3. FALLBACK PATH
         response = "I understand you're asking about breast health. I can help with self-examination techniques, early warning signs, risk factors, or prevention strategies. What specific information would you like?"
         processing_time = time.time() - start_time
-        print(f"🐢 SLOW fallback in {processing_time:.3f}s")
+        print(f"[FALLBACK] Response in {processing_time:.3f}s")
         return ChatResponse(
             response=response,
             source="Medical Knowledge Base",
@@ -260,7 +260,8 @@ async def chat_message(request: ChatRequest):
         )
         
     except Exception as e:
-        print(f"❌ Chat error: {e}")
+        # Use repr to safely print error without Unicode issues
+        print(f"[ERROR] Chat error: {repr(e)}")
         return ChatResponse(
             response="I'm here to help with breast health information. What would you like to know?",
             source="System",
