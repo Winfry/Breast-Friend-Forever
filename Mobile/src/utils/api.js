@@ -103,4 +103,44 @@ api.interceptors.response.use(
   }
 );
 
+// Export individual functions for backward compatibility
+export const sendChatMessage = (message, userId) => apiService.sendChatMessage(message, userId);
+export const checkBackendHealth = () => apiService.healthCheck();
+export const getHospitals = async (filters = {}) => {
+  try {
+    const response = await api.get('/api/v1/hospitals/', { params: filters });
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch hospitals:', error);
+    throw error;
+  }
+};
+export const getResources = async () => {
+  try {
+    const response = await api.get('/api/v1/resources/');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch resources:', error);
+    throw error;
+  }
+};
+export const getEncouragement = async () => {
+  try {
+    const response = await api.get('/api/v1/encouragement/');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch encouragement:', error);
+    throw error;
+  }
+};
+export const getMobileFeatures = async () => {
+  try {
+    const response = await api.get('/api/v1/mobile/');
+    return response.data;
+  } catch (error) {
+    console.error('Failed to fetch mobile features:', error);
+    throw error;
+  }
+};
+
 export default apiService;
