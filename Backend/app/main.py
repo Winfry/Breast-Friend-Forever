@@ -40,6 +40,7 @@ app.mount("/static", StaticFiles(directory="app/data"), name="static")
 
 #  Connect all API routers to the main app
 app.include_router(chatbot.router, prefix="/api/v1/chat", tags=["Chatbot"])
+app.include_router(agentic_chatbot.router, prefix="/api/v1/chatbot", tags=["Agentic Chatbot"])  # 🤖 New agentic RAG endpoint
 app.include_router(hospitals.router, prefix="/api/v1/hospitals", tags=["Hospitals"])
 app.include_router(resources.router, prefix="/api/v1/resources", tags=["Resources"])
 app.include_router(encouragement.router, prefix="/api/v1/encouragement", tags=["Encouragement"])
@@ -54,12 +55,16 @@ async def root():
         "version": "1.0.0",
         "endpoints": {
             "chatbot": "/api/v1/chat",
-            "hospitals": "/api/v1/hospitals", 
+            "agentic_chatbot": "/api/v1/chatbot/agentic",
+            "hospitals": "/api/v1/hospitals",
             "resources": "/api/v1/resources",
             "encouragement": "/api/v1/encouragement",
             "self_exam": "/api/v1/self_exam"
         },
-        "documentation": "/docs"
+        "documentation": "/docs",
+        "new_features": {
+            "agentic_rag": "Intelligent AI assistant with routing, web search, and verification"
+        }
     }
 
 # Health check endpoint - for monitoring
