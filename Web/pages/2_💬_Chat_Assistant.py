@@ -196,8 +196,8 @@ if not st.session_state.chat_messages:
         "timestamp": datetime.now().strftime("%H:%M")
     })
 
-def add_message(role, content, source=None):
-    """Add message to chat with timestamp"""
+def add_message(role, content, source=None, tool_used=None, confidence=None):
+    """Add message to chat with timestamp and optional metadata"""
     message = {
         "role": role,
         "content": content,
@@ -205,6 +205,10 @@ def add_message(role, content, source=None):
     }
     if source and source != "Welcome":
         message["source"] = source
+    if tool_used:
+        message["tool_used"] = tool_used
+    if confidence is not None:
+        message["confidence"] = confidence
     st.session_state.chat_messages.append(message)
     
     # Auto-scroll to bottom after adding message
@@ -224,7 +228,7 @@ def get_rag_response(user_message):
     """Get response from RAG system - completely silent to user"""
     if not RAG_AVAILABLE or rag_system is None:
         return None
-    
+
     try:
         relevant_chunks = rag_system.search(user_message, top_k=5)
         if relevant_chunks:
@@ -235,13 +239,68 @@ def get_rag_response(user_message):
             }
     except Exception:
         pass
-    
+
     return None
 
+def get_agentic_rag_response(user_message):
+    """
+    Get response from Agentic RAG API endpoint
+
+    🤖 This uses the intelligent agentic system that:
+    - Routes to best tool (RAG search, web search, or direct answer)
+    - Verifies answer quality before responding
+    - Provides source citations and confidence scores
+    """
+    try:
+        # Generate or get conversation ID
+        if "conversation_id" not in st.session_state:
+            import uuid
+            st.session_state.conversation_id = str(uuid.uuid4())
+
+        # Call the agentic RAG API
+        response = requests.post(
+            "http://localhost:8000/api/v1/chatbot/agentic/message",
+            json={
+                "message": user_message,
+                "conversation_id": st.session_state.conversation_id
+            },
+            timeout=30  # Agentic RAG may take longer
+        )
+
+        if response.status_code == 200:
+            data = response.json()
+
+            # Map tool icons
+            tool_icons = {
+                "rag_search": "📚",
+                "web_search": "🌐",
+                "direct_answer": "💬"
+            }
+            icon = tool_icons.get(data.get("tool_used", ""), "🤖")
+
+            return {
+                "response": data["response"],
+                "source": f"Agentic AI {icon} (confidence: {data['confidence']:.2f})",
+                "confidence": data["confidence"],
+                "tool_used": data.get("tool_used", "unknown")
+            }
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Agentic RAG API Error: {e}")
+        return None
+
 def get_accurate_medical_response(user_message):
-    """Get medical response - user sees only final result"""
-    
-    # Try RAG system first
+    """Get medical response - tries Agentic RAG first, then regular RAG, then fallback"""
+
+    # 1. Try Agentic RAG first (if enabled)
+    if st.session_state.get("use_agentic_rag", True):
+        agentic_result = get_agentic_rag_response(user_message)
+        if agentic_result and agentic_result.get("confidence", 0) > 0.4:
+            return agentic_result
+
+    # 2. Try regular RAG system
     rag_result = get_rag_response(user_message)
     if rag_result:
         return rag_result
@@ -357,7 +416,18 @@ for message in st.session_state.chat_messages:
         </div>
         """, unsafe_allow_html=True)
     else:
-        source_badge = f'<div class="source-badge">📚 {message["source"]}</div>' if message.get("source") else ''
+        # Add tool-specific icon if available
+        tool_icon = ""
+        if "tool_used" in message:
+            tool_icons = {
+                "rag_search": "📚",
+                "web_search": "🌐",
+                "direct_answer": "💬",
+                "error": "⚠️"
+            }
+            tool_icon = tool_icons.get(message.get("tool_used"), "🤖")
+
+        source_badge = f'<div class="source-badge">{tool_icon} {message["source"]}</div>' if message.get("source") else ''
         st.markdown(f"""
         <div class="bot-message">
             {message["content"]}
@@ -396,10 +466,16 @@ for i, suggestion in enumerate(suggestions):
             # Get AI response
             with st.spinner("🌸 Finding information for you..."):
                 ai_result = get_accurate_medical_response(suggestion)
-            
-            # Add assistant message  
-            add_message("assistant", ai_result["response"], ai_result.get("source"))
-            
+
+            # Add assistant message with tool metadata
+            add_message(
+                "assistant",
+                ai_result["response"],
+                ai_result.get("source"),
+                ai_result.get("tool_used"),
+                ai_result.get("confidence")
+            )
+
             st.rerun()
 
 # Message input area - ALWAYS VISIBLE NOW
@@ -429,9 +505,15 @@ if send_button:
         # Get AI response
         with st.spinner("🌸 Finding information for you..."):
             ai_result = get_accurate_medical_response(user_input)
-        
-        # Add assistant message  
-        add_message("assistant", ai_result["response"], ai_result.get("source"))
+
+        # Add assistant message with tool metadata
+        add_message(
+            "assistant",
+            ai_result["response"],
+            ai_result.get("source"),
+            ai_result.get("tool_used"),
+            ai_result.get("confidence")
+        )
         
         # Clear input
         st.session_state.user_input = ""
@@ -457,7 +539,24 @@ with st.sidebar:
     
     *Note: This information is for educational purposes. Always consult healthcare professionals for medical advice and diagnosis.*
     """)
-    
+
+    st.markdown("---")
+
+    # 🤖 Agentic RAG Toggle
+    st.markdown("### 🤖 AI Assistant Mode")
+
+    use_agentic = st.checkbox(
+        "Use Agentic RAG (Intelligent AI)",
+        value=True,
+        help="Uses advanced AI with intelligent routing, web search, verification, and multi-step reasoning"
+    )
+    st.session_state["use_agentic_rag"] = use_agentic
+
+    if use_agentic:
+        st.success("🤖 **Agentic RAG Enabled**\n- Smart routing & tool selection\n- Web search for latest info\n- Answer verification")
+    else:
+        st.info("📚 **Standard RAG Mode**\n- Fast PDF knowledge base search")
+
     st.markdown("---")
     
     if st.button("🔄 Start New Conversation", use_container_width=True):
