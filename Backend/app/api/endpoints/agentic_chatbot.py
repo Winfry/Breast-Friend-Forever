@@ -17,10 +17,26 @@ from pydantic import BaseModel
 from typing import Optional
 import time
 
-# Import our agentic RAG system
-from app.agentic_rag import query_agentic_rag
-
 router = APIRouter()
+
+# ============================================================================
+# LAZY LOADING: Import agentic RAG only when needed
+# ============================================================================
+"""
+Why lazy loading?
+- sentence_transformers has heavy dependencies (TensorFlow, Keras)
+- Loading it at server startup slows down the server
+- We only load it when someone actually uses the agentic endpoint
+"""
+
+def get_agentic_rag_function():
+    """Lazy load the agentic RAG query function"""
+    try:
+        from app.agentic_rag import query_agentic_rag
+        return query_agentic_rag
+    except Exception as e:
+        print(f"❌ Error loading agentic RAG: {e}")
+        return None
 
 
 # ============================================================================
@@ -106,6 +122,11 @@ async def agentic_chat_message(request: AgenticChatRequest):
         print(f"Message: {request.message}")
         print(f"Conversation ID: {request.conversation_id}")
         print(f"{'='*60}\n")
+
+        # Lazy load the agentic RAG function
+        query_agentic_rag = get_agentic_rag_function()
+        if query_agentic_rag is None:
+            raise Exception("Agentic RAG system failed to load")
 
         # Query the agentic RAG system
         result = query_agentic_rag(
