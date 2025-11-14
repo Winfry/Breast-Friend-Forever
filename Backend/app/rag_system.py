@@ -5,7 +5,6 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 import pickle
-import streamlit as st
 import re
 
 class BreastCancerRAG:
@@ -24,13 +23,13 @@ class BreastCancerRAG:
     def load_all_pdfs(self):
         """Load and process all PDFs in the pdfs folder"""
         if not os.path.exists(self.pdf_folder):
-            st.warning(f"PDF folder not found: {self.pdf_folder}")
+            print(f"PDF folder not found: {self.pdf_folder}")
             return False
-            
+
         pdf_files = [f for f in os.listdir(self.pdf_folder) if f.endswith('.pdf')]
-        
+
         if not pdf_files:
-            st.warning("No PDF files found in the pdfs folder")
+            print("No PDF files found in the pdfs folder")
             return False
             
         self.knowledge_base = []
@@ -322,8 +321,11 @@ class BreastCancerRAG:
         return response
 
 # Initialize RAG system
-@st.cache_resource
 def get_rag_system():
+    """
+    Initialize and return the RAG system.
+    Note: In production, cache this globally to avoid reloading PDFs on each request.
+    """
     rag = BreastCancerRAG()
     success = rag.load_all_pdfs()
     if success:

@@ -112,17 +112,30 @@ def rag_search_tool(query: str) -> dict:
     """
     print(f"🔍 RAG TOOL: Searching PDFs for: {query}")
 
-    # Use existing RAG system
-    response = rag_system.query(query)
+    # Load PDFs if not already loaded
+    if not rag_system.knowledge_base:
+        print("   📚 Loading PDFs for the first time...")
+        rag_system.load_all_pdfs()
+
+    # Use existing RAG system - search for relevant chunks
+    chunks = rag_system.search(query, top_k=5)
+
+    # Generate answer from chunks
+    answer = rag_system.get_answer(query, chunks)
 
     # Extract confidence from similarity scores
     confidence = 0.0
-    if hasattr(rag_system, 'last_similarities') and rag_system.last_similarities:
-        confidence = float(max(rag_system.last_similarities))
+    if chunks:
+        # Average similarity of top chunks
+        similarities = [chunk['similarity'] for chunk in chunks]
+        confidence = float(sum(similarities) / len(similarities))
+
+    # Extract unique sources
+    sources = list(set([chunk['source'] for chunk in chunks])) if chunks else []
 
     return {
-        "answer": response,
-        "sources": ["Medical PDF Database"],
+        "answer": answer,
+        "sources": sources if sources else ["Medical PDF Database"],
         "confidence": confidence,
         "tool_used": "rag_search"
     }

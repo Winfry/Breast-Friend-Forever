@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 # Import all endpoint routers
-from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile 
+from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile, agentic_chatbot
 from app.core.config import settings
 
 # Initialize FastAPI app with metadata
