@@ -117,18 +117,28 @@ def rag_search_tool(query: str) -> dict:
         print("   📚 Loading PDFs for the first time...")
         rag_system.load_all_pdfs()
 
-    # Use existing RAG system - search for relevant chunks
-    chunks = rag_system.search(query, top_k=5)
+    # Use existing RAG system - search for relevant chunks (increased from 5 to 10)
+    chunks = rag_system.search(query, top_k=10)
 
     # Generate answer from chunks
     answer = rag_system.get_answer(query, chunks)
 
-    # Extract confidence from similarity scores
+    # Extract confidence from similarity scores (weighted average - top chunks count more)
     confidence = 0.0
     if chunks:
-        # Average similarity of top chunks
+        # Weighted average: give more weight to the top results
+        # Top 5 chunks get 70% weight, remaining 5 get 30% weight
+        top_chunks = min(5, len(chunks))
         similarities = [chunk['similarity'] for chunk in chunks]
-        confidence = float(sum(similarities) / len(similarities))
+
+        if len(chunks) <= 5:
+            # If 5 or fewer chunks, use simple average
+            confidence = float(sum(similarities) / len(similarities))
+        else:
+            # Weighted average favoring top results
+            top_avg = sum(similarities[:5]) / 5
+            rest_avg = sum(similarities[5:]) / len(similarities[5:]) if len(similarities) > 5 else 0
+            confidence = float(0.7 * top_avg + 0.3 * rest_avg)
 
     # Extract unique sources
     sources = list(set([chunk['source'] for chunk in chunks])) if chunks else []
@@ -366,8 +376,8 @@ def verification_node(state: AgentState) -> AgentState:
     confidence = state["confidence"]
     sources = state["sources"]
 
-    # Decision criteria
-    if confidence >= 0.5 and sources:
+    # Decision criteria (lowered threshold from 0.5 to 0.4 for better coverage)
+    if confidence >= 0.4 and sources:
         print(f"   ✅ Answer is good (confidence: {confidence:.2f})")
         state["current_step"] = "verified"
     else:
