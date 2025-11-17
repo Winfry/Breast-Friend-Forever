@@ -257,9 +257,15 @@ def get_agentic_rag_response(user_message):
             import uuid
             st.session_state.conversation_id = str(uuid.uuid4())
 
+        # Determine backend URL (works on both computer and phone)
+        # Try environment variable first, then default to localhost
+        import os
+        backend_host = os.getenv("BACKEND_HOST", "localhost")
+        backend_url = f"http://{backend_host}:8000/api/v1/chatbot/agentic/message"
+
         # Call the agentic RAG API
         response = requests.post(
-            "http://localhost:8000/api/v1/chatbot/agentic/message",
+            backend_url,
             json={
                 "message": user_message,
                 "conversation_id": st.session_state.conversation_id
@@ -288,7 +294,10 @@ def get_agentic_rag_response(user_message):
             return None
 
     except Exception as e:
-        print(f"Agentic RAG API Error: {e}")
+        print(f"❌ Agentic RAG API Error: {e}")
+        print(f"   Backend URL attempted: {backend_url if 'backend_url' in locals() else 'unknown'}")
+        import traceback
+        traceback.print_exc()
         return None
 
 def get_accurate_medical_response(user_message):
