@@ -199,14 +199,36 @@ def direct_answer_tool(query: str) -> dict:
     Returns:
         dict with 'answer' and metadata
     """
-    print(f"💬 DIRECT TOOL: Answering directly: {query}")
+    print(f"💬 DIRECT TOOL: Answering directly with LLM: {query}")
 
-    return {
-        "answer": "I'll answer this using my general knowledge.",
-        "sources": ["AI Knowledge"],
-        "confidence": 0.6,
-        "tool_used": "direct_answer"
-    }
+    # Use Ollama to generate a helpful response
+    try:
+        from langchain_ollama import ChatOllama
+        llm_direct = ChatOllama(model="llama3.2:1b", temperature=0.7)
+
+        prompt = f"""You are a helpful and caring breast health assistant. Answer this question conversationally and warmly:
+
+Question: {query}
+
+Provide a brief, helpful answer in 2-3 sentences."""
+
+        response = llm_direct.invoke(prompt)
+        answer = response.content if hasattr(response, 'content') else str(response)
+
+        return {
+            "answer": answer,
+            "sources": ["AI Assistant"],
+            "confidence": 0.6,
+            "tool_used": "direct_answer"
+        }
+    except Exception as e:
+        print(f"❌ Error in direct_answer_tool: {e}")
+        return {
+            "answer": "I'm here to help! Could you please rephrase your question or ask about breast cancer screening, prevention, or symptoms?",
+            "sources": ["AI Assistant"],
+            "confidence": 0.3,
+            "tool_used": "direct_answer"
+        }
 
 
 # Combine all tools into a list for LangGraph
@@ -274,8 +296,13 @@ def router_node(state: AgentState) -> AgentState:
         query_type = "recent_info"
         print("   → Decision: Use WEB SEARCH (query asks for recent info)")
 
-    # Check for medical/educational questions
-    elif any(word in query_lower for word in ["symptom", "sign", "screening", "prevention", "risk", "exam", "treatment"]):
+    # Check for medical/educational questions (expanded keywords)
+    elif any(word in query_lower for word in [
+        "symptom", "sign", "screening", "prevention", "risk", "exam", "treatment",
+        "cancer", "breast", "mammogram", "tumor", "lump", "diagnosis", "doctor",
+        "hospital", "health", "medical", "test", "biopsy", "self-exam", "check",
+        "detect", "early", "stage", "types", "kind", "disease", "condition"
+    ]):
         query_type = "medical"
         print("   → Decision: Use RAG SEARCH (medical question)")
 
