@@ -32,6 +32,8 @@ http://YOUR_IP:8501
 
 Example: `http://192.168.1.5:8501`
 
+**Note:** If port 8501 doesn't work, try 8502, 8503, etc. Streamlit automatically increments the port if 8501 is already in use. Check your terminal for the actual port being used (look for "You can now view your Streamlit app in your browser" message).
+
 #### **Backend API (for testing):**
 ```
 http://YOUR_IP:8000
@@ -115,17 +117,38 @@ New-NetFirewallRule -DisplayName "Python Dev Server" -Direction Inbound -Program
 
 ### **Still Not Working?**
 
-Use `0.0.0.0` in your server start commands to bind to all interfaces:
+**1. Wrong Port?**
+Check which port Streamlit is actually using:
+- Look for "You can now view your Streamlit app in your browser" in the terminal
+- Try `http://YOUR_IP:8502` or `http://YOUR_IP:8503` if 8501 doesn't work
+
+**2. Bind to all network interfaces:**
 
 **Backend:**
 ```bash
+cd Backend
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 **Streamlit:**
 ```bash
-streamlit run app.py --server.address 0.0.0.0
+cd Web
+streamlit run app.py --server.address 0.0.0.0 --server.port 8501
 ```
+
+**3. Check if services are accessible locally first:**
+- Backend: `http://localhost:8000/health`
+- Streamlit: `http://localhost:8501`
+
+**4. Verify your IP is correct:**
+```bash
+ipconfig
+```
+Look for `IPv4 Address` under your active WiFi adapter (e.g., `192.168.100.5`)
+
+**5. Both devices on same WiFi?**
+- Phone and computer MUST be on the same WiFi network
+- Some public WiFi networks block device-to-device communication
 
 ---
 

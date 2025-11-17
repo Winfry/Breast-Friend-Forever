@@ -407,11 +407,15 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="main-chat-container auto-scroll">', unsafe_allow_html=True)
 
 # Display chat messages
+import html
 for message in st.session_state.chat_messages:
+    # Escape HTML in content to prevent injection and rendering issues
+    safe_content = html.escape(str(message["content"]))
+
     if message["role"] == "user":
         st.markdown(f"""
         <div class="user-message">
-            {message["content"]}
+            {safe_content}
             <div class="message-time">{message["timestamp"]}</div>
         </div>
         """, unsafe_allow_html=True)
@@ -430,7 +434,7 @@ for message in st.session_state.chat_messages:
         source_badge = f'<div class="source-badge">{tool_icon} {message["source"]}</div>' if message.get("source") else ''
         st.markdown(f"""
         <div class="bot-message">
-            {message["content"]}
+            {safe_content}
             <div class="message-time">{message["timestamp"]}</div>
             {source_badge}
         </div>
