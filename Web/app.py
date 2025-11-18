@@ -13,9 +13,19 @@ apply_custom_styles()
 # Show PWA install prompt on mobile
 show_install_prompt()
 
-# Main header with animation
-col1, col2 = st.columns([2, 1])
+# Main header with logo and animation
+col1, col2, col3 = st.columns([1, 3, 1])
+
 with col1:
+    # Display logo
+    import os
+    logo_path = os.path.join(os.path.dirname(__file__), "assets", "logo.svg")
+    if os.path.exists(logo_path):
+        with open(logo_path, "r") as f:
+            logo_svg = f.read()
+        st.markdown(f'<div style="text-align: center;">{logo_svg}</div>', unsafe_allow_html=True)
+
+with col2:
     st.markdown('<div class="main-header">Breast Friend Forever 💖</div>', unsafe_allow_html=True)
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem;">
@@ -23,7 +33,7 @@ with col1:
     </div>
     """, unsafe_allow_html=True)
 
-with col2:
+with col3:
     anim_manager.display_animation("welcome", height=200)
 
 # Backend connection with animation
