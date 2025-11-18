@@ -1,0 +1,45 @@
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background circle with gradient -->
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF69B4;stop-opacity:1" />
+    </linearGradient>
+
+    <linearGradient id="heartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF1493;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C71585;stop-opacity:1" />
+    </linearGradient>
+
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Main circle background -->
+  <circle cx="100" cy="100" r="95" fill="url(#bgGradient)" filter="url(#shadow)"/>
+
+  <!-- White inner circle -->
+  <circle cx="100" cy="100" r="75" fill="white" opacity="0.95"/>
+
+  <!-- Ribbon (breast cancer awareness symbol) -->
+  <path d="M 100 50 Q 85 50 85 65 Q 85 75 100 90 Q 115 75 115 65 Q 115 50 100 50 Z
+           M 95 88 L 95 120 L 105 120 L 105 88"
+        fill="url(#heartGradient)"
+        filter="url(#shadow)"/>
+
+  <!-- Caring hands (stylized) -->
+  <path d="M 60 95 Q 55 90 50 95 Q 48 100 52 105 L 70 115 Q 75 118 78 113 L 65 100 Z"
+        fill="#FF69B4" opacity="0.8"/>
+  <path d="M 140 95 Q 145 90 150 95 Q 152 100 148 105 L 130 115 Q 125 118 122 113 L 135 100 Z"
+        fill="#FF69B4" opacity="0.8"/>
+
+  <!-- Sparkles for hope -->
+  <circle cx="70" cy="70" r="3" fill="#FFD700" opacity="0.9"/>
+  <circle cx="130" cy="70" r="3" fill="#FFD700" opacity="0.9"/>
+  <circle cx="100" cy="140" r="3" fill="#FFD700" opacity="0.9"/>
+
+  <!-- Text: BFF -->
+  <text x="100" y="155" font-family="Arial, sans-serif" font-size="24" font-weight="bold"
+        fill="#FF1493" text-anchor="middle">BFF</text>
+</svg>
