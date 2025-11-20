@@ -10,27 +10,24 @@ import os
 # Add the backend to the path
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
 
-# Cached RAG system initialization - only runs once per session!
-@st.cache_resource(show_spinner="🌸 Loading medical knowledge base...")
-def initialize_rag_system():
-    """Initialize RAG system once and cache it - prevents reloading PDFs on every page refresh"""
-    try:
-        backend_app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
-        rag_file = os.path.join(backend_app_path, 'rag_system.py')
-        if os.path.exists(rag_file):
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("rag_system", rag_file)
-            rag_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(rag_module)
-            get_rag_system = getattr(rag_module, "get_rag_system", None)
-            if callable(get_rag_system):
-                return get_rag_system(), True
-    except Exception:
-        pass
-    return None, False
+# Silently try to load RAG system
+RAG_AVAILABLE = False
+rag_system = None
 
-# Initialize RAG system (cached - only loads PDFs once!)
-rag_system, RAG_AVAILABLE = initialize_rag_system()
+try:
+    backend_app_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 'Backend', 'app'))
+    rag_file = os.path.join(backend_app_path, 'rag_system.py')
+    if os.path.exists(rag_file):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("rag_system", rag_file)
+        rag_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(rag_module)
+        get_rag_system = getattr(rag_module, "get_rag_system", None)
+        if callable(get_rag_system):
+            rag_system = get_rag_system()
+            RAG_AVAILABLE = True
+except Exception:
+    pass
 
 def load_lottieurl(url: str):
     try:
