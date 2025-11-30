@@ -510,7 +510,7 @@ if hospital_df is not None:
         clinics_data.append(clinic)
     
     st.session_state.clinics_data = clinics_data
-    st.success(f"✅ Loaded {len(clinics_data)} healthcare facilities from your dataset!")
+    # Data loaded silently - logged in backend
 else:
     # Use sample data if CSV not available
     st.warning("Using sample data - CSV file not found")

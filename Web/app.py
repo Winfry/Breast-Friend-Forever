@@ -30,11 +30,8 @@ with col2:
 connection_container = st.container()
 with connection_container:
     if api_client.health_check():
-        col1, col2 = st.columns([1, 6])
-        with col1:
-            anim_manager.display_animation("success", height=80)
-        with col2:
-            st.success("✅ Backend Connected & Ready!")
+        # Backend connected - logged silently
+        pass
     else:
         st.error("❌ Backend Connection Failed")
 
