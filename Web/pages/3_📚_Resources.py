@@ -579,7 +579,7 @@ for video in resources["videos"]:
         
         with col2:
             st.markdown(f"""
-                <a href="{video['https://www.youtube.com/results?search_query=How+to+Perform+Breast+Self-Exam+kenya']}" target="_blank" class="external-link">
+                <a href="{video['url']}" target="_blank" class="external-link">
                     ▶️ Watch Video
                 </a>
             """, unsafe_allow_html=True)
