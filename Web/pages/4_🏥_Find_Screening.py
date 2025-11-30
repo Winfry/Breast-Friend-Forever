@@ -723,7 +723,7 @@ if st.session_state.clinics_data:
                   '#8B5CF6' for clinic in map_clinics]
     })
 
-    fig = px.scatter_mapbox(
+    fig = px.scatter_map(
         map_data,
         lat="lat",
         lon="lon",
