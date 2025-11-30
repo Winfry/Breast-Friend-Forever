@@ -31,7 +31,7 @@ class ApiClient:
 
     def post_chat_message(self, message):
         try:
-            print(f"[SEND] Sending message to backend: {message}")
+            print(f"📤 Sending message to backend: {message}")
             start_time = time.time()
             response = requests.post(
                 f"{self.backend_url}/api/v1/chat/message",
@@ -39,29 +39,29 @@ class ApiClient:
                 timeout=self.timeout
             )
             response_time = time.time() - start_time
-            print(f"[RECV] Backend response: {response.status_code} in {response_time:.2f}s")
-
+            print(f"📥 Backend response: {response.status_code} in {response_time:.2f}s")
+            
             if response.status_code == 200:
                 data = response.json()
-                print(f"[OK] Backend success: {data.get('source', 'No source')}")
+                print(f"✅ Backend success: {data.get('source', 'No source')}")
                 return data
             else:
-                print(f"[ERROR] Backend error status: {response.status_code}")
+                print(f"❌ Backend error status: {response.status_code}")
                 return {
                     "response": "I'm here to help with breast health information. Please try your question again.",
                     "source": "System Error",
                     "confidence": "low"
                 }
-
+                
         except requests.exceptions.Timeout:
-            print("[ERROR] Backend timeout")
+            print("❌ Backend timeout")
             return {
                 "response": "I'm taking a bit longer to respond. Please wait or try again.",
                 "source": "System Timeout",
                 "confidence": "low"
             }
         except Exception as e:
-            print(f"[ERROR] Backend connection failed: {e}")
+            print(f"❌ Backend connection failed: {e}")
             return {
                 "response": "I'm here to help with breast health information. What would you like to know about self-examination, symptoms, or prevention?",
                 "source": "Connection Failed",
