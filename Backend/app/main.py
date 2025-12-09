@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 import uvicorn
 
 # Import all endpoint routers
-from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile, agentic_chatbot
+from app.api.endpoints import chatbot, hospitals, resources, encouragement, self_exam, mobile, agentic_chatbot, symptom_checker, journal, reminders
 from app.core.config import settings
 
 # Initialize FastAPI app with metadata
@@ -46,6 +46,9 @@ app.include_router(resources.router, prefix="/api/v1/resources", tags=["Resource
 app.include_router(encouragement.router, prefix="/api/v1/encouragement", tags=["Encouragement"])
 app.include_router(self_exam.router, prefix="/api/v1/self_exam", tags=["Self Exam"])
 app.include_router(mobile.router, prefix="/api/v1/mobile", tags=["Mobile"])
+app.include_router(symptom_checker.router, prefix="/api/v1/symptom-check", tags=["Symptom Checker"])
+app.include_router(journal.router, prefix="/api/v1/journal", tags=["Journal"])
+app.include_router(reminders.router, prefix="/api/v1/reminders", tags=["Reminders"])
 
 # Root endpoint - API welcome message
 @app.get("/")

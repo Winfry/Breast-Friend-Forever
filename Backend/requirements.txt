@@ -21,4 +21,8 @@ pypdf2
 httpx  # Updated to satisfy duckduckgo-search
 beautifulsoup4
 requests
+requests
 duckduckgo-search
+chromadb
+langgraph
+langchain-ollama

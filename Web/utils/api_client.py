@@ -96,4 +96,61 @@ class ApiClient:
         )
         return response.json()
 
+    # --- New Features ---
+
+    def analyze_symptoms(self, symptoms, pain_level, duration, cycle_day, age):
+        """Call the Expert System API"""
+        payload = {
+            "symptoms": symptoms,
+            "pain_level": pain_level,
+            "duration_days": duration,
+            "cycle_day": cycle_day,
+            "age": age
+        }
+        try:
+            response = requests.post(f"{self.backend_url}/api/v1/symptom-check/analyze", json=payload)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"error": f"Error: {response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def calculate_reminders(self, last_period_date, cycle_length):
+        """Call the Reminders API"""
+        payload = {
+            "last_period_date": str(last_period_date),
+            "cycle_length_days": cycle_length
+        }
+        try:
+            response = requests.post(f"{self.backend_url}/api/v1/reminders/calculate", json=payload)
+            if response.status_code == 200:
+                return response.json()
+            else:
+                return {"error": f"Error: {response.status_code}"}
+        except Exception as e:
+            return {"error": str(e)}
+
+    def get_journal_entries(self):
+        """Get all journal entries"""
+        try:
+            response = requests.get(f"{self.backend_url}/api/v1/journal/")
+            return response.json()
+        except Exception:
+            return []
+
+    def add_journal_entry(self, date, symptoms, notes, mood):
+        """Add a new journal entry"""
+        payload = {
+            "date": str(date),
+            "symptoms": symptoms,
+            "notes": notes,
+            "mood": mood
+        }
+        try:
+            response = requests.post(f"{self.backend_url}/api/v1/journal/", json=payload)
+            return response.json()
+        except Exception as e:
+            return {"error": str(e)}
+
 api_client = ApiClient()
