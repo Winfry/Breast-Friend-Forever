@@ -119,27 +119,42 @@ class BreastCancerRAG:
         return formatted_results
     
     def get_answer(self, question, context_chunks):
-        """Generate answer using context (Same logic as before)"""
+        """Generate a personalized, warm answer using the retrieved context and LLM"""
         if not context_chunks:
-            return "I couldn't find specific information about that in our medical resources."
+            return "I couldn't find specific information about that in our medical resources. However, generally speaking, it's important to consult a healthcare professional for personalized advice."
         
-        # Reuse the existing summarization logic
-        # We need to import the formatting methods or copy them. 
-        # For cleanliness, I'll copy the core logic here simplified.
+        # Prepare context for the LLM
+        context_text = "\n\n".join([f"Source ({c['source']}): {c['text']}" for c in context_chunks])
         
-        # Simple summarization for now to keep file clean
-        # In production, we'd keep the detailed formatters
-        
-        context_text = "\n\n".join([c['text'] for c in context_chunks])
-        
-        # We should ideally use an LLM here, but for now we return the context 
-        # or use the previous heuristic.
-        # Let's keep it simple:
-        return f"**Based on our resources:**\n\n{context_chunks[0]['text'][:500]}...\n\n(See source: {context_chunks[0]['source']})"
-
-    # ... (Keep the _format_* methods if needed, or import them)
-    # For this refactor, I will assume we want to keep the class self-contained.
-    # I will re-add the _summarize_chunks method logic in a simplified way.
+        try:
+            from langchain_ollama import ChatOllama
+            llm = ChatOllama(model="llama3.2:latest", temperature=0.3)
+            
+            prompt = f"""You are 'BFF', a compassionate and knowledgeable breast health assistant for women. 
+            Use the following medical context to answer the user's question.
+            
+            RULES:
+            1. Be warm, empathetic, and encouraging (use emojis like 🌸, 💖).
+            2. Use the provided context to give accurate information.
+            3. Do NOT just copy the text. Explain it simply and clearly.
+            4. If the context doesn't fully answer, say so gently.
+            5. Always end with a brief encouraging note.
+            
+            CONTEXT:
+            {context_text}
+            
+            USER QUESTION:
+            {question}
+            
+            YOUR ANSWER:"""
+            
+            response = llm.invoke(prompt)
+            return response.content if hasattr(response, 'content') else str(response)
+            
+        except Exception as e:
+            print(f"❌ LLM Error: {e}")
+            # Fallback to simple summary if LLM fails
+            return f"**Based on our resources:**\n\n{context_chunks[0]['text'][:500]}...\n\n(See source: {context_chunks[0]['source']})"
 
     def _summarize_chunks(self, chunks, question):
         return self.get_answer(question, chunks)
