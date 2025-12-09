@@ -273,7 +273,7 @@ def get_agentic_rag_response(user_message):
                 "message": user_message,
                 "conversation_id": st.session_state.conversation_id
             },
-            timeout=30  # Agentic RAG may take longer
+            timeout=60  # Agentic RAG may take longer, increased to 60s
         )
 
         if response.status_code == 200:

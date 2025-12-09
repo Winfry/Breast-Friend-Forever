@@ -33,6 +33,12 @@ User: "What's the latest breast cancer research in 2024?"
 """
 
 import os
+import logging
+
+# Suppress TensorFlow/Keras warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # FATAL
+logging.getLogger('tensorflow').setLevel(logging.FATAL)
+
 from typing import TypedDict, Annotated, Literal
 from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
