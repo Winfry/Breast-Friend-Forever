@@ -119,3 +119,13 @@ if __name__ == "__main__":
         reload=True,
         access_log=True
     )
+
+@app.get("/")
+async def root():
+    return {
+        "message": "Breast-Friend-Forever API",
+        "status": "running",
+        "version": "1.0.0",
+        "docs": "/docs",
+        "health": "/health"
+    }
