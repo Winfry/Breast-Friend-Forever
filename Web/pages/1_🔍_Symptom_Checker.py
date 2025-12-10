@@ -73,14 +73,7 @@ def show():
             st.info("Please select at least one symptom for analysis.")
         else:
             with st.spinner("Consulting medical guidelines..."):
-                result = api_client.analyze_symptoms(
-                    symptoms=symptoms_list,
-                    pain_level=pain_level,
-                    duration=duration,
-                    cycle_day=cycle_day,
-                    age=age
-                )
-                
+                result = call_backend_feature("Symptom Checker",api_client.analyze_symptoms, symptom_data)
                 if "error" in result:
                     st.error("Could not connect to the analysis engine. Please ensure the backend is running.")
                 else:
