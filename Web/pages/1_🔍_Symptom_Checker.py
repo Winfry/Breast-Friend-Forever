@@ -91,88 +91,79 @@ def show():
     st.markdown("---")
     st.subheader(t['step1'])
     
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown("""
-        <div style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); 
-                    padding: 2rem; border-radius: 15px; text-align: center;">
-            <h4 style="margin-bottom: 1rem;">Click on the area</h4>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Right Breast
-        st.markdown('<div style="text-align: center; margin-top: 1rem;"><b>🔴 Right Breast</b></div>', unsafe_allow_html=True)
-        r1, r2, r3, r4 = st.columns(4)
-        
-        with r1:
-            if st.button("⬆️ Upper\nOuter", key="ruo", use_container_width=True):
-                st.session_state.symptom_location = "Right Upper Outer"
-                st.session_state.current_step = 2
-                st.rerun()
-        with r2:
-            if st.button("⬆️ Upper\nInner", key="rui", use_container_width=True):
-                st.session_state.symptom_location = "Right Upper Inner"
-                st.session_state.current_step = 2
-                st.rerun()
-        with r3:
-            if st.button("🎯 Nipple", key="rn", use_container_width=True):
-                st.session_state.symptom_location = "Right Nipple"
-                st.session_state.current_step = 2
-                st.rerun()
-        with r4:
-            if st.button("💪 Armpit", key="ra", use_container_width=True):
-                st.session_state.symptom_location = "Right Axilla"
-                st.session_state.current_step = 2
-                st.rerun()
-        
-        r5, r6, r7, r8 = st.columns(4)
-        with r5:
-            if st.button("⬇️ Lower\nOuter", key="rlo", use_container_width=True):
-                st.session_state.symptom_location = "Right Lower Outer"
-                st.session_state.current_step = 2
-                st.rerun()
-        with r6:
-            if st.button("⬇️ Lower\nInner", key="rli", use_container_width=True):
-                st.session_state.symptom_location = "Right Lower Inner"
-                st.session_state.current_step = 2
-                st.rerun()
+    # Breast diagram with horizontal layout
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%); 
+                padding: 1.5rem; border-radius: 15px; text-align: center; margin: 1rem auto; max-width: 800px;">
+        <h4 style="margin-bottom: 0.5rem;">Click on the area where you feel the symptom</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Right Breast - Horizontal Layout
+    st.markdown('<div style="text-align: center; margin-top: 1.5rem;"><b>🔴 Right Breast</b></div>', unsafe_allow_html=True)
+    
+    # Row 1: Upper quadrants + Nipple + Armpit
+    r_cols = st.columns([1, 1, 1, 1])
+    if r_cols[0].button("⬆️ Upper Outer", key="ruo", use_container_width=True):
+        st.session_state.symptom_location = "Right Upper Outer"
+        st.session_state.current_step = 2
+        st.rerun()
+    if r_cols[1].button("⬆️ Upper Inner", key="rui", use_container_width=True):
+        st.session_state.symptom_location = "Right Upper Inner"
+        st.session_state.current_step = 2
+        st.rerun()
+    if r_cols[2].button("🎯 Nipple", key="rn", use_container_width=True):
+        st.session_state.symptom_location = "Right Nipple"
+        st.session_state.current_step = 2
+        st.rerun()
+    if r_cols[3].button("💪 Armpit", key="ra", use_container_width=True):
+        st.session_state.symptom_location = "Right Axilla"
+        st.session_state.current_step = 2
+        st.rerun()
+    
+    # Row 2: Lower quadrants
+    r_cols2 = st.columns([1, 1, 2])
+    if r_cols2[0].button("⬇️ Lower Outer", key="rlo", use_container_width=True):
+        st.session_state.symptom_location = "Right Lower Outer"
+        st.session_state.current_step = 2
+        st.rerun()
+    if r_cols2[1].button("⬇️ Lower Inner", key="rli", use_container_width=True):
+        st.session_state.symptom_location = "Right Lower Inner"
+        st.session_state.current_step = 2
+        st.rerun()
 
-        # Left Breast
-        st.markdown('<div style="text-align: center; margin-top: 2rem;"><b>🔵 Left Breast</b></div>', unsafe_allow_html=True)
-        l1, l2, l3, l4 = st.columns(4)
-        
-        with l1:
-            if st.button("⬆️ Upper\nOuter", key="luo", use_container_width=True):
-                st.session_state.symptom_location = "Left Upper Outer"
-                st.session_state.current_step = 2
-                st.rerun()
-        with l2:
-            if st.button("⬆️ Upper\nInner", key="lui", use_container_width=True):
-                st.session_state.symptom_location = "Left Upper Inner"
-                st.session_state.current_step = 2
-                st.rerun()
-        with l3:
-            if st.button("🎯 Nipple", key="ln", use_container_width=True):
-                st.session_state.symptom_location = "Left Nipple"
-                st.session_state.current_step = 2
-                st.rerun()
-        with l4:
-            if st.button("💪 Armpit", key="la", use_container_width=True):
-                st.session_state.symptom_location = "Left Axilla"
-                st.session_state.current_step = 2
-                st.rerun()
-        
-        l5, l6, l7, l8 = st.columns(4)
-        with l5:
-            if st.button("⬇️ Lower\nOuter", key="llo", use_container_width=True):
-                st.session_state.symptom_location = "Left Lower Outer"
-                st.session_state.current_step = 2
-                st.rerun()
-        with l6:
-            if st.button("⬇️ Lower\nInner", key="lli", use_container_width=True):
-                st.session_state.symptom_location = "Left Lower Inner"
-                st.session_state.current_step = 2
-                st.rerun()
+    # Left Breast - Horizontal Layout
+    st.markdown('<div style="text-align: center; margin-top: 2rem;"><b>🔵 Left Breast</b></div>', unsafe_allow_html=True)
+    
+    # Row 1: Upper quadrants + Nipple + Armpit
+    l_cols = st.columns([1, 1, 1, 1])
+    if l_cols[0].button("⬆️ Upper Outer", key="luo", use_container_width=True):
+        st.session_state.symptom_location = "Left Upper Outer"
+        st.session_state.current_step = 2
+        st.rerun()
+    if l_cols[1].button("⬆️ Upper Inner", key="lui", use_container_width=True):
+        st.session_state.symptom_location = "Left Upper Inner"
+        st.session_state.current_step = 2
+        st.rerun()
+    if l_cols[2].button("🎯 Nipple", key="ln", use_container_width=True):
+        st.session_state.symptom_location = "Left Nipple"
+        st.session_state.current_step = 2
+        st.rerun()
+    if l_cols[3].button("💪 Armpit", key="la", use_container_width=True):
+        st.session_state.symptom_location = "Left Axilla"
+        st.session_state.current_step = 2
+        st.rerun()
+    
+    # Row 2: Lower quadrants
+    l_cols2 = st.columns([1, 1, 2])
+    if l_cols2[0].button("⬇️ Lower Outer", key="llo", use_container_width=True):
+        st.session_state.symptom_location = "Left Lower Outer"
+        st.session_state.current_step = 2
+        st.rerun()
+    if l_cols2[1].button("⬇️ Lower Inner", key="lli", use_container_width=True):
+        st.session_state.symptom_location = "Left Lower Inner"
+        st.session_state.current_step = 2
+        st.rerun()
 
     if st.session_state.symptom_location:
         st.success(f"✅ Selected: **{st.session_state.symptom_location}**")
