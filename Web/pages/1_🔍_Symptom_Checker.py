@@ -1,3 +1,4 @@
+from utils.backend_helper import call_backend_feature
 import streamlit as st
 from utils.api_client import api_client
 from utils.style_utils import apply_custom_styles
