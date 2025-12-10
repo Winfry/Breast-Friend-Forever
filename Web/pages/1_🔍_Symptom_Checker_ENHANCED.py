@@ -3,67 +3,16 @@ from utils.api_client import api_client
 from utils.style_utils import apply_custom_styles
 from utils.backend_helper import call_backend_feature
 import time
-from datetime import datetime
-import json
-
-# Multi-language support
-TRANSLATIONS = {
-    "en": {
-        "title": "🔍 Interactive Symptom Checker",
-        "warning": "⚠️ Important: This tool provides educational information based on medical guidelines. It is NOT a diagnosis. Always consult a healthcare professional for any breast changes.",
-        "step1": "📍 Step 1: Where are you feeling the symptom?",
-        "step2": "🩺 Step 2: Describe your symptoms",
-        "step3": "📅 Step 3: Additional context",
-        "step4": "🌸 Step 4: Menstrual cycle",
-        "analyze": "🔬 Analyze My Symptoms",
-        "select_location": "Please select a location above to continue",
-        "results": "📊 Your Results",
-        "risk_level": "Risk Level",
-        "urgency": "Urgency"
-    },
-    "sw": {  # Swahili
-        "title": "🔍 Kipima Dalili cha Maingiliano",
-        "warning": "⚠️ Muhimu: Zana hii inatoa taarifa za elimu kulingana na miongozo ya kimatibabu. Sio utambuzi. Daima wasiliana na mtaalamu wa afya kwa mabadiliko yoyote ya kifua.",
-        "step1": "📍 Hatua ya 1: Unahisi dalili wapi?",
-        "step2": "🩺 Hatua ya 2: Eleza dalili zako",
-        "step3": "📅 Hatua ya 3: Muktadha wa ziada",
-        "step4": "🌸 Hatua ya 4: Mzunguko wa hedhi",
-        "analyze": "🔬 Tathmini Dalili Zangu",
-        "select_location": "Tafadhali chagua eneo hapo juu ili kuendelea",
-        "results": "📊 Matokeo Yako",
-        "risk_level": "Kiwango cha Hatari",
-        "urgency": "Dharura"
-    },
-    "fr": {  # French
-        "title": "🔍 Vérificateur de Symptômes Interactif",
-        "warning": "⚠️ Important: Cet outil fournit des informations éducatives basées sur des directives médicales. Ce n'est PAS un diagnostic. Consultez toujours un professionnel de santé pour tout changement mammaire.",
-        "step1": "📍 Étape 1: Où ressentez-vous le symptôme?",
-        "step2": "🩺 Étape 2: Décrivez vos symptômes",
-        "step3": "📅 Étape 3: Contexte supplémentaire",
-        "step4": "🌸 Étape 4: Cycle menstruel",
-        "analyze": "🔬 Analyser Mes Symptômes",
-        "select_location": "Veuillez sélectionner un emplacement ci-dessus pour continuer",
-        "results": "📊 Vos Résultats",
-        "risk_level": "Niveau de Risque",
-        "urgency": "Urgence"
-    }
-}
 
 def show():
     apply_custom_styles()
 
-    # Language selector
-    col1, col2, col3 = st.columns([3, 1, 1])
-    with col3:
-        lang = st.selectbox("🌍", ["en", "sw", "fr"], format_func=lambda x: {"en": "English", "sw": "Swahili", "fr": "Français"}[x], label_visibility="collapsed")
-    
-    t = TRANSLATIONS[lang]
-
-    st.markdown(f"## {t['title']}")
-    st.markdown(f"""
+    st.markdown("## 🔍 Interactive Symptom Checker")
+    st.markdown("""
     <div style="background-color: #fce4ec; padding: 1rem; border-radius: 10px; margin-bottom: 2rem;">
         <p style="color: #c2185b; margin: 0;">
-            {t['warning']}
+            <b>⚠️ Important:</b> This tool provides educational information based on medical guidelines. 
+            It is <b>NOT</b> a diagnosis. Always consult a healthcare professional for any breast changes.
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -73,24 +22,17 @@ def show():
         st.session_state.symptom_location = None
     if 'current_step' not in st.session_state:
         st.session_state.current_step = 1
-    if 'symptom_history' not in st.session_state:
-        st.session_state.symptom_history = []
 
     # Progress bar
     progress = st.session_state.current_step / 4
     st.progress(progress)
     st.caption(f"Step {st.session_state.current_step} of 4")
 
-    # History comparison
-    if st.session_state.symptom_history:
-        with st.expander(f"📜 History ({len(st.session_state.symptom_history)} previous checks)"):
-            for i, check in enumerate(reversed(st.session_state.symptom_history[-5:])):  # Last 5
-                st.caption(f"**{check['date']}** - {check['location']} - Risk: {check['risk']}")
-
-    # Step 1: Location Selection
+    # Step 1: Location Selection with Visual Diagram
     st.markdown("---")
-    st.subheader(t['step1'])
+    st.subheader("📍 Step 1: Where are you feeling the symptom?")
     
+    # Create a more visual breast diagram using emojis and styled buttons
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         st.markdown("""
@@ -174,13 +116,16 @@ def show():
                 st.session_state.current_step = 2
                 st.rerun()
 
+    # Show selected location with animation
     if st.session_state.symptom_location:
         st.success(f"✅ Selected: **{st.session_state.symptom_location}**")
         
+        # Only show form if location is selected
         st.markdown("---")
         
         with st.form("symptom_form"):
-            st.subheader(t['step2'])
+            # Step 2: Symptoms
+            st.subheader("🩺 Step 2: Describe your symptoms")
             
             col1, col2 = st.columns(2)
             
@@ -210,6 +155,7 @@ def show():
                     help="Does it hurt?"
                 )
 
+            # Conditional Pain Slider with emoji feedback
             pain_level = 0
             if symptom_pain != "No pain":
                 pain_level = st.slider(
@@ -217,6 +163,7 @@ def show():
                     0, 10, 3,
                     help="Drag the slider to indicate pain intensity"
                 )
+                # Visual feedback for pain level
                 if pain_level <= 3:
                     st.info("😊 Mild discomfort")
                 elif pain_level <= 6:
@@ -224,8 +171,9 @@ def show():
                 else:
                     st.error("😖 Severe pain - please see a doctor soon")
 
+            # Step 3: Context
             st.markdown("---")
-            st.subheader(t['step3'])
+            st.subheader("📅 Step 3: Additional context")
             
             c1, c2, c3 = st.columns(3)
             with c1:
@@ -235,6 +183,7 @@ def show():
                     value=1,
                     help="How long have you noticed this?"
                 )
+                # Duration feedback
                 if duration_days > 14:
                     st.caption("⏰ Persistent for 2+ weeks - worth checking")
             
@@ -253,8 +202,9 @@ def show():
                     help="Breastfeeding can cause normal changes"
                 )
                 
+            # Step 4: Cycle Info
             st.markdown("---")
-            st.subheader(t['step4'])
+            st.subheader("🌸 Step 4: Menstrual cycle")
             
             cycle_day = st.slider(
                 "Day of cycle (Day 1 = Start of period)", 
@@ -262,6 +212,7 @@ def show():
                 help="Breast changes are normal during certain cycle phases"
             )
             
+            # Cycle phase feedback
             if 1 <= cycle_day <= 7:
                 st.caption("📅 Early cycle - breast tenderness is common")
             elif 20 <= cycle_day <= 28:
@@ -269,13 +220,15 @@ def show():
             
             st.caption("💡 If you don't have periods or are menopausal, leave as default.")
 
+            # Submit button with better styling
             st.markdown("<br>", unsafe_allow_html=True)
             submitted = st.form_submit_button(
-                t['analyze'], 
+                "🔬 Analyze My Symptoms", 
                 type="primary",
                 use_container_width=True
             )
 
+        # Process submission
         if submitted:
             symptoms_list = []
             if symptom_lump != "No lump": symptoms_list.append(symptom_lump)
@@ -296,45 +249,46 @@ def show():
                     "is_breastfeeding": is_breastfeeding
                 }
                 
+                # Animated loading
                 with st.spinner("🔬 Analyzing your symptoms..."):
-                    time.sleep(1)
+                    time.sleep(1)  # Brief pause for UX
                     result = call_backend_feature("Symptom Checker", api_client.analyze_symptoms, symptom_data)
                     
                     if result and "error" not in result:
+                        # Animated reveal
                         st.balloons()
                         
-                        # Save to history
-                        st.session_state.symptom_history.append({
-                            "date": datetime.now().strftime("%Y-%m-%d %H:%M"),
-                            "location": st.session_state.symptom_location,
-                            "risk": result.get("risk_level", "Unknown"),
-                            "symptoms": symptoms_list,
-                            "result": result
-                        })
-                        
                         st.markdown("---")
-                        st.markdown(f"## {t['results']}")
+                        st.markdown("## 📊 Your Results")
                         
+                        # Risk level with color-coded badge
                         risk = result.get("risk_level", "Unknown")
                         urgency = result.get("urgency", "")
                         
                         if risk == "Low":
-                            color, icon, emoji = "#4caf50", "✅", "😊"
+                            color = "#4caf50"
+                            icon = "✅"
+                            emoji = "😊"
                         elif risk == "Moderate":
-                            color, icon, emoji = "#ff9800", "⚠️", "🤔"
+                            color = "#ff9800"
+                            icon = "⚠️"
+                            emoji = "🤔"
                         else:
-                            color, icon, emoji = "#f44336", "🚨", "😟"
+                            color = "#f44336"
+                            icon = "🚨"
+                            emoji = "😟"
                         
                         st.markdown(f"""
                         <div style="text-align: center; padding: 2rem; 
                                     background: linear-gradient(135deg, {color}20 0%, {color}40 100%); 
                                     border: 3px solid {color}; border-radius: 15px; margin-bottom: 2rem;">
                             <h1 style="color: {color}; margin:0; font-size: 3rem;">{icon}</h1>
-                            <h2 style="color: {color}; margin:0.5rem 0;">{t['risk_level']}: {risk} {emoji}</h2>
-                            <p style="font-size: 1.2rem; margin-top: 0.5rem;"><b>{t['urgency']}:</b> {urgency}</p>
+                            <h2 style="color: {color}; margin:0.5rem 0;">Risk Level: {risk} {emoji}</h2>
+                            <p style="font-size: 1.2rem; margin-top: 0.5rem;"><b>Urgency:</b> {urgency}</p>
                         </div>
                         """, unsafe_allow_html=True)
                         
+                        # Analysis in expandable sections
                         with st.expander("📋 Detailed Analysis", expanded=True):
                             st.write(result.get("summary"))
                         
@@ -345,6 +299,7 @@ def show():
                         with st.expander("🩺 Recommended Next Steps"):
                             st.info(result.get('recommendation'))
                         
+                        # Action buttons
                         st.markdown("---")
                         col1, col2, col3 = st.columns(3)
                         with col1:
@@ -357,14 +312,15 @@ def show():
                             if st.button("💬 Ask AI Assistant", use_container_width=True):
                                 st.switch_page("pages/2_💬_Chat_Assistant.py")
                         
+                        # Reset button
                         if st.button("🔄 Check Another Symptom", type="secondary", use_container_width=True):
                             st.session_state.symptom_location = None
                             st.session_state.current_step = 1
                             st.rerun()
                     else:
-                        st.error("❌ Could not analyze symptoms. Please try again.")
+                        st.error("❌ Could not analyze symptoms. Please try again or contact support.")
     else:
-        st.info(f"👆 {t['select_location']}")
+        st.info("👆 Please select a location above to continue")
 
 if __name__ == "__main__":
     show()
