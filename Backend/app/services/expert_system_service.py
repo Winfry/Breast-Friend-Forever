@@ -1,8 +1,9 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from pydantic import BaseModel
 
 class SymptomInput(BaseModel):
     symptoms: List[str]
+    location: Optional[str] = None
     pain_level: int  # 0-10
     duration_days: int
     cycle_day: int  # Day of menstrual cycle (1-28+)
@@ -29,6 +30,9 @@ class SymptomExpertSystem:
         # --- 1. Symptom Analysis ---
         symptoms_lower = [s.lower() for s in data.symptoms]
         
+        if data.location:
+            potential_causes.append(f"Symptom located at: {data.location}")
+
         # High Risk Flags
         if "hard lump" in symptoms_lower or "fixed lump" in symptoms_lower:
             risk_score += 5
@@ -81,7 +85,7 @@ class SymptomExpertSystem:
                 risk_level="High",
                 summary="Your symptoms show some signs that require medical attention.",
                 recommendation="Please see a doctor for a clinical breast exam and possible imaging.",
-                potential_causes=potential_causes,
+                potential_causes=list(dict.fromkeys(potential_causes)),
                 urgency="Immediate (Within 1-2 weeks)"
             )
         elif risk_score >= 3:
@@ -89,7 +93,7 @@ class SymptomExpertSystem:
                 risk_level="Moderate",
                 summary="These symptoms are likely benign but should be checked.",
                 recommendation="Monitor for one full menstrual cycle. If it persists, see a doctor.",
-                potential_causes=potential_causes,
+                potential_causes=list(dict.fromkeys(potential_causes)),
                 urgency="Soon (Within a month)"
             )
         else:
@@ -97,7 +101,7 @@ class SymptomExpertSystem:
                 risk_level="Low",
                 summary="Your symptoms appear consistent with normal hormonal changes or benign conditions.",
                 recommendation="Continue monthly self-exams. Note if anything changes.",
-                potential_causes=potential_causes if potential_causes else ["Normal breast tissue"],
+                potential_causes=list(dict.fromkeys(potential_causes)) if potential_causes else ["Normal breast tissue"],
                 urgency="Routine"
             )
 
