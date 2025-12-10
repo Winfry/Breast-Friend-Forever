@@ -124,7 +124,14 @@ class BreastCancerRAG:
             return "I couldn't find specific information about that in our medical resources. However, generally speaking, it's important to consult a healthcare professional for personalized advice."
         
         # Prepare context for the LLM
-        context_text = "\n\n".join([f"Source ({c['source']}): {c['text']}" for c in context_chunks])
+        # Prepare context for the LLM (Limit to top 3 chunks or 2000 chars to be fast)
+        # We take the most relevant chunks only
+        limited_chunks = context_chunks[:4]
+        context_text = "\n\n".join([f"Source ({c['source']}): {c['text']}" for c in limited_chunks])
+        
+        # Safety cutoff to prevent context window overflow/slowness
+        if len(context_text) > 3000:
+            context_text = context_text[:3000] + "...(truncated)"
         
         try:
             from langchain_ollama import ChatOllama

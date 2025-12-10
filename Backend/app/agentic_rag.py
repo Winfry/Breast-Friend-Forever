@@ -123,8 +123,8 @@ def rag_search_tool(query: str) -> dict:
         print("   📚 Loading PDFs for the first time...")
         rag_system.load_all_pdfs()
 
-    # Use existing RAG system - search for relevant chunks (increased from 5 to 10)
-    chunks = rag_system.search(query, top_k=10)
+    # Use existing RAG system - search for relevant chunks (reduced to 4 for speed)
+    chunks = rag_system.search(query, top_k=4)
 
     # Generate answer from chunks
     answer = rag_system.get_answer(query, chunks)
