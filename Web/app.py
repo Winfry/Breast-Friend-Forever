@@ -20,26 +20,6 @@ with col1:
     st.markdown("""
     <div style="text-align: center; margin-bottom: 2rem;">
         <p style="font-size: 1.2rem; color: #666;">Your compassionate animated guide to breast health</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-with col2:
-    anim_manager.display_animation("welcome", height=200)
-
-# Backend connection with animation
-connection_container = st.container()
-with connection_container:
-    if api_client.health_check():
-        # Backend connected - logged silently
-        pass
-    else:
-        st.error("❌ Backend Connection Failed")
-
-# Animated welcome section
-st.markdown("""
-<div class="pink-card pulse-animation">
-    <h2>🎀 Welcome to Your Breast Health Companion</h2>
-    <p>Your compassionate, animated guide to breast health education, support, and resources. 
     Every interaction is designed with care and understanding.</p>
 </div>
 """, unsafe_allow_html=True)
